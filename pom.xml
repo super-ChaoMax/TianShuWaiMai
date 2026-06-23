@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- 修正为全小写groupId -->
+  <groupId>com.chaao</groupId>
+  <artifactId>TianShuWaiMaiApp</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <!-- 父工程核心：打包类型pom -->
+  <packaging>pom</packaging>
+  <name>天枢外卖聚合父工程</name>
+
+  <!-- 后续新建子模块后会自动填充 -->
+  <modules>
+    <module>App-Common</module>
+    <module>App-Pojo</module>
+    <module>App-Server</module>
+  </modules>
+
+  <!-- 统一管理SpringBoot版本，所有子模块共用 -->
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.5.15</version>
+    <relativePath/>
+  </parent>
+
+  <!-- 统一管控子模块版本 ：父工程 pom.xml  -->
+  <dependencyManagement>
+    <dependencies>
+      <!-- 1. 管理 App-Common 的版本 -->
+       <dependency>
+         <groupId>com.chaao</groupId>
+         <artifactId>App-Common</artifactId>
+         <version>${project.version}</version> <!-- 自动继承父工程的 1.0-SNAPSHOT -->
+       </dependency>
+
+      <dependency>
+         <groupId>com.chaao</groupId>
+         <artifactId>App-Pojo</artifactId>
+         <version>${project.version}</version> <!-- 自动继承父工程的 1.0-SNAPSHOT -->
+       </dependency>
+
+      <dependency>
+         <groupId>com.chaao</groupId>
+         <artifactId>App-Server</artifactId>
+         <version>${project.version}</version> <!-- 自动继承父工程的 1.0-SNAPSHOT -->
+       </dependency>
+
+    </dependencies>
+  </dependencyManagement>
+
+  <!-- 全局公共依赖，所有子模块自动继承 -->
+<!-- 统一锁定SpringBoot版本、MySQL、Mybatis版本-->
+  <dependencies>
+
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+    </dependency>
+
+
+    <dependency>
+      <groupId>com.mysql</groupId>
+      <artifactId>mysql-connector-j</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mybatis.spring.boot</groupId>
+      <artifactId>mybatis-spring-boot-starter</artifactId>
+      <version>3.0.5</version>
+    </dependency>
+
+
+
+
+  </dependencies>
+
+
+
+
+</project>
