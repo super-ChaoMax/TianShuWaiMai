@@ -1,1 +1,12 @@
-spring.application.name=App-Server
+#application-dev.yml：开发环境专用配置文件。
+#当项目以 dev 模式启动时（通过 spring.profiles.active=dev 指定），
+#Spring Boot 会自动加载此文件，并将其中的配置与 application.yml 合并，
+#优先级更高。常用于配置本地数据库地址、调试开关、测试接口等。
+
+
+#数据库配置（windows）
+datasource:
+  url: jdbc:mysql://localhost:3306/tianshuwaimai?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&allowMultiQueries=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+  username: root
+  password: 123456
+  driver-class-name: com.mysql.cj.jdbc.Driver

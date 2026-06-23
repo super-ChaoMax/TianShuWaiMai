@@ -1,1 +1,3 @@
-spring.application.name=App-Server
+#application-prod.yml：生产环境专用配置文件。
+#当项目部署到线上并以 prod 模式启动时，会加载此文件。
+#通常包含真实数据库连接、安全密钥、性能优化参数等敏感或关键配置。
