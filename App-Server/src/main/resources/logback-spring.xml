@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<configuration>
+
+    <!-- 解析：使用 <property> 定义全局变量，方便后续复用和统一修改。
+    name: 变量名
+    value: 变量的值 -->
+
+    <!-- 优先读取环境变量 LOG_PATH，如果没有，则使用 D:\MyTestLog\TianShuWaiMaiLog -->
+    <property name="LOG_PATH" value="${LOG_PATH:-D:/MyTestLog/TianShuWaiMaiLog}"/>>
+    <property name="APP_NAME" value="my-TianShuWaiMaiLog-app"/>
+
+
+
+
+
+    <!-- 解析：<appender> 定义了日志输出的目的地。
+         name: appender的名称，后续在 <root> 中通过这个名字引用它
+         class: 指定输出的实现类，这里是输出到控制台 -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- 解析：<encoder> 负责将日志事件转换为字符串。
+             <pattern> 定义了日志的排版格式，这是企业级日志的核心！
+             详细拆解：
+             %d{yyyy-MM-dd HH:mm:ss.SSS} : 打印精确到毫秒的时间
+             [%thread]                   : 打印当前执行的线程名（排查并发问题必备）
+             %-5level                    : 打印日志级别，左对齐且固定占5个字符
+             %logger{36}                 : 打印类名（最多36个字符，防止太长）
+             %X{traceId}                 : 【重点】从 MDC 中提取 traceId（链路追踪核心）
+             %msg%n                      : 打印具体的日志消息内容，并换行 -->
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{traceId}] %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+
+
+
+
+
+    <!-- 解析：RollingFileAppender 是企业级最常用的文件输出类，支持日志滚动。 -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+        <!-- 解析：<file> 指定当前正在写入的日志文件路径。
+             这里使用了变量 ${LOG_PATH}，最终路径为 ./logs/my-web-app.log -->
+        <file>${LOG_PATH}/${APP_NAME}.log</file>
+
+        <!-- 解析：<rollingPolicy> 定义日志文件的滚动策略（什么时候生成新文件）。
+             TimeBasedRollingPolicy 表示基于时间进行滚动。
+             fileNamePattern: 定义历史日志文件的命名规则。
+             %d{yyyy-MM-dd} 表示每天生成一个文件，例如 my-web-app.2024-01-01.log
+             maxHistory: 最多保留30天的历史日志，超过30天自动删除，防止磁盘爆满 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/${APP_NAME}.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+            <!-- 单个日志大小-->
+            <maxFileSize>10MB</maxFileSize>
+            <!-- 增加这一行：所有历史日志总大小不能超过 10GB -->
+            <totalSizeCap>10GB</totalSizeCap>
+        </rollingPolicy>
+
+        <!-- 解析：这里的 encoder 格式与 CONSOLE 保持一致，方便统一解析。 -->
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{traceId}] %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!--
+        * 生成下异步日志配置（高并发性能优化核心）
+
+     解析：AsyncAppender 是生产环境的性能保障！
+         它本身不输出日志，而是作为一个“缓冲池”。
+         业务线程把日志扔进这个池子就立刻返回，由后台线程异步写入真正的 FILE appender。
+         这避免了磁盘 IO 阻塞业务线程。
+        <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
+             queueSize: 异步队列的大小，默认256。高并发下可适当调大，但会占用内存
+            <queueSize>512</queueSize>
+             discardingThreshold: 丢弃阈值。当队列剩余容量低于这个值时，会丢弃 TRACE/DEBUG/INFO 日志。
+                 设为 0 表示不丢弃任何级别的日志，确保 ERROR 等关键日志绝对不丢
+            <discardingThreshold>0</discardingThreshold>
+             includeCallerData: 是否包含调用者信息（如行号）。默认 false。
+                 获取行号需要遍历堆栈，非常消耗性能，生产环境强烈建议设为 false
+            <includeCallerData>false</includeCallerData>
+
+             解析：将上面的同步 FILE appender 包装成异步的
+            <appender-ref ref="FILE"/>
+        </appender>
+
+
+    -->
+
+
+
+    <!--    全局日志级别与 Appender 日志输出的最低级别-->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </root>
+
+    <!-- 解析：<logger> 可以针对特定的包或类设置独立的日志级别。
+         比如：在排查问题时，只想看某个特定类的详细日志，可以单独设为 DEBUG，
+         而不影响全局的 INFO 级别。 -->
+    <!--    <logger name="com.example.mywebapp.controller" level="DEBUG"/>-->
+
+</configuration>
