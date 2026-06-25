@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 
@@ -140,6 +141,22 @@ public class JwtUtil {
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
+
+    /**
+     * 双端登录专用生成token
+     * @param username 账号/标识（Map 里面可以空着不存任何东西）
+     * @param userId 用户id
+     * @param userType 用户类型 1后台 2微信
+     * @return token
+     */
+    public String generateLoginToken(String username,Long userId,Integer userType){
+        Map<String,Object> map = new HashMap<>();
+        map.put("userId",userId);
+        map.put("userType",userType);
+        // 想加别的随便加，昵称、角色都行
+        return generateToken(username,map);
+    }
+
 
 
 

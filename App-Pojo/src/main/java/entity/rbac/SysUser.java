@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * RBAC模型：用户表 (sys_user)
+ * RBAC模型：系统员工用户表 (sys_user)
  */
 @Data
 @NoArgsConstructor
@@ -31,7 +31,7 @@ public class SysUser implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 主键ID
+     * 主键ID(雪花)
      */
     private Long id;
 
@@ -51,12 +51,21 @@ public class SysUser implements Serializable {
     private String phone;
 
     /**
-     * 邮箱
+     * 性别
+     * 1-男, 2-女, null-未知
      */
-    private String email;
+    private Integer gender;
 
     /**
-     * 状态：1-正常, 0-禁用
+     * 员工身份证
+     */
+    private String idNumber;
+
+
+
+
+    /**
+     * 状态：1-正常, 0-禁用/离职
      */
     private Integer status;
 
@@ -64,15 +73,31 @@ public class SysUser implements Serializable {
      * 逻辑删除标识：0-未删除, 1-已删除
      * 配合 MyBatis-Plus 全局逻辑删除配置使用
      */
-    private Integer isDeleted;
+    private Integer deleted;
 
+
+
+
+
+    /**
+     * 权限版本号（配合高并发乐观锁），变更时+1，默认1
+     * 乐观锁插件会自动处理：更新时 WHERE version = oldVersion，并 SET version = oldVersion + 1
+     * --- 记得没传的时候要加个默认值1，不然就IF判断没有就不传不然会成null
+     */
+    private Integer version;
+
+
+//时间都是MySQL自动的
     /**
      * 创建时间
      */
-    private LocalDateTime createdAt;
+//    private LocalDateTime createdAt;
 
     /**
      * 更新时间
      */
-    private LocalDateTime updatedAt;
+//    private LocalDateTime updatedAt;
+
+
+
 }
