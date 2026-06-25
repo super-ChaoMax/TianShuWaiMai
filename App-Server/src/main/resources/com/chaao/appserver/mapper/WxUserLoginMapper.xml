@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.chao.mapper.WxUserLoginMapper">
+
+
+    <!-- findByUsername: 根据微信的唯一标识查询用户 -->
+    <select id="findByUsername" resultType="entity.wx.WxUser">
+
+        SELECT
+        id,
+        openid,
+        name,
+        phone,
+        created_time as createdTime,
+        updated_time as updatedTime,
+        status,
+        deleted,
+        version
+
+        FROM user
+        WHERE openid = #{openid}
+        AND deleted = 0
+        And  status = 1
+        LIMIT 1
+
+    </select>
+
+
+
+
+</mapper>
