@@ -5,7 +5,7 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
@@ -30,7 +30,7 @@ public class JwtUtil {
 
     /**
      * 构造函数注入配置参数
-     * 
+     *
      * @param secretKey JWT 签名密钥，从配置文件读取，至少需要32个字符（256位）
      *                  对应配置项：jwt.secret
      * @param expireTime Token 过期时间（秒），从配置文件读取后转换为毫秒
@@ -38,7 +38,9 @@ public class JwtUtil {
      */
     public JwtUtil(@Value("${jwt.secret:jwt_secret_key_ZZCJWT123456}") String secretKey,
                    @Value("${jwt.expire:86400}") long expireTime) {
-        if (secretKey == null || secretKey.getBytes().length < 32) {
+        // 使用UTF-8统一计算密钥字节长度，兼容多环境
+        byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
+        if (secretKey == null || keyBytes.length < 32) {
             throw new IllegalArgumentException("JWT密钥长度至少需要32个字符");
         }
         this.secretKey = secretKey;
@@ -50,11 +52,12 @@ public class JwtUtil {
     /**
      * 获取签名密钥
      * 使用 HMAC-SHA256 算法生成安全的签名密钥
-     * 
+     *
      * @return Key 对象，用于签名和验证
      */
     private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(secretKey.getBytes());
+        // 统一使用UTF-8编码解析密钥，避免系统编码差异导致签名异常
+        return Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
 
@@ -62,10 +65,10 @@ public class JwtUtil {
     /**
      * 生成简单的 JWT Token
      * 适用于只需要存储用户名的场景
-     * 
+     *
      * @param username 用户名，作为 Token 的 subject（主体）
      * @return 生成的 JWT Token 字符串
-     * 
+     *
      * Token 包含的信息：
      * - sub（主题）：用户名
      * - iat（签发时间）：当前时间戳
@@ -86,11 +89,11 @@ public class JwtUtil {
 
     /**
      * 解析并验证 JWT Token
-     * 
+     *
      * @param token 待验证的 JWT Token 字符串
      * @return Claims 对象，包含 Token 中的所有载荷信息
      * @throws RuntimeException 当 Token 过期或无效时抛出异常
-     * 
+     *
      * 验证流程：
      * 1. 验证签名是否正确（防止篡改）
      * 2. 验证 Token 是否过期
@@ -115,11 +118,11 @@ public class JwtUtil {
     /**
      * 生成带自定义载荷的 JWT Token
      * 适用于需要存储额外用户信息的场景（如用户ID、角色等）
-     * 
+     *
      * @param subject Token 主体（通常是用户名）
      * @param claims 自定义载荷 Map，例如：{"id": 1, "role": "admin"}
      * @return 生成的 JWT Token 字符串
-     * 
+     *
      * 使用示例：
      * <pre>
      * Map<String, Object> claims = new HashMap<>();
@@ -160,6 +163,41 @@ public class JwtUtil {
 
 
 
+    // ========== 新增：微信小程序用户专用Token方法（来自第一个JwtUtil） ==========
+    /**
+     * 微信用户token（userType固定2）
+     * @param userId 微信用户主键ID
+     * @param openid 微信小程序唯一openid
+     * @return jwt token
+     */
+    public String generateWxToken(Long userId, String openid) {
+        Map<String,Object> claims = new HashMap<>();
+        claims.put("userId", userId);
+        claims.put("openid", openid);
+        claims.put("userType", 2);
+        // subject存入openid，和后台账号区分
+        return generateToken(openid, claims);
+    }
+
+
+    // 从token获取用户名/OpenId
+    public String getUsernameFromToken(String token){
+        return parseToken(token).getSubject();
+    }
+
+    // 获取用户ID
+    public Long getUserIdFromToken(String token){
+        return parseToken(token).get("userId", Long.class);
+    }
+
+    // 获取用户类型 1管理员 2微信
+    public Integer getUserTypeFromToken(String token){
+        return parseToken(token).get("userType", Integer.class);
+    }
+
+    // 新增：从token获取微信openid（过滤器/业务读取openid专用）
+    public String getOpenIdFromToken(String token) {
+        return parseToken(token).get("openid", String.class);
+    }
 
 }
-

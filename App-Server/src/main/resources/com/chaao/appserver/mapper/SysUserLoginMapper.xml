@@ -5,42 +5,49 @@
 
 
 
-<mapper namespace="com.chao.mapper.SysUserLoginMapper">
+<mapper namespace="com.chaao.appserver.mapper.SysUserLoginMapper">
 
 
     <!-- findByUsername: 根据系统用户名查询用户 -->
     <select id="findByUsername" resultType="entity.rbac.SysUser">
-
         SELECT
         id,
         username,
-        password_hash AS passwordHash,
+        password  AS passwordHash,
+        name,
         phone,
-        gender,
+        sex,
         id_number AS idNumber,
         status,
-        deleted,
-        version
+        create_time AS createTime,
+        update_time AS updateTime,
+        version,
+        deleted
         FROM employee
         WHERE username = #{username}
-        AND is_deleted = 0
+        AND deleted = 0
         LIMIT 1
-
     </select>
 
 
     <!-- 根据用户ID查询这个用户的所有角色封装在一个List集合里-->
+    <!-- 根据用户ID查询角色 -->
     <select id="findRolesByUserId" resultType="entity.rbac.SysRole">
         SELECT DISTINCT
         r.id,
         r.role_code AS roleCode,
         r.role_name AS roleName,
-        r.perm_version AS permVersion
-        <!--        主表与关联表-->
+        r.sort,
+        r.create_time AS createTime,
+        r.update_time AS updateTime,
+        r.version,
+        r.deleted
         FROM sys_role r
-        INNER JOIN sys_employee_role sur ON r.employee_id = sur.role_id
-        <!--        合成的表筛选条件-->
+        INNER JOIN sys_employee_role sur
+        ON r.id = sur.role_id
         WHERE sur.employee_id = #{userId}
+        AND r.deleted = 0
+        AND sur.deleted = 0
     </select>
 
 
@@ -66,20 +73,19 @@
     注意点：关联表的数据缺失上。这是一个典型的“五表关联”查询，只要其中任何一个环节断了，结果就是空。
     -->
 
+    <!-- 根据用户ID查询权限 -->
+    <!-- 根据用户ID查询权限 -->
     <select id="findPermsByUserId" resultType="java.lang.String">
-        SELECT DISTINCT p.perm_code
-
-        FROM sys_employee u
-
-        JOIN sys_employee_role ur ON u.id = ur.user_id
+        SELECT DISTINCT p.perm_key
+        FROM employee u
+        JOIN sys_employee_role ur ON u.id = ur.employee_id
         JOIN sys_role r ON ur.role_id = r.id
         JOIN sys_role_permission rp ON r.id = rp.role_id
         JOIN sys_permission p ON rp.perm_id = p.id
-
         WHERE u.id = #{userId}
         AND u.deleted = 0
         AND r.deleted = 0
-        <!--     还要考虑是否  1 代表正常启用状态-->
+        AND ur.deleted = 0
         AND u.status = 1
     </select>
 

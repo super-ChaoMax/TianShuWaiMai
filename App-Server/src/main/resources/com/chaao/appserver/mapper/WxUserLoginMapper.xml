@@ -5,19 +5,19 @@
 
 
 
-<mapper namespace="com.chao.mapper.WxUserLoginMapper">
+<mapper namespace="com.chaao.appserver.mapper.WxUserLoginMapper">
 
 
     <!-- findByUsername: 根据微信的唯一标识查询用户 -->
-    <select id="findByUsername" resultType="entity.wx.WxUser">
+    <select id="findByOpenid" resultType="entity.wx.WxUser">
 
         SELECT
         id,
         openid,
         name,
         phone,
-        created_time as createdTime,
-        updated_time as updatedTime,
+        create_time as  createdTime,
+        update_time as  updateTime,
         status,
         deleted,
         version
@@ -30,6 +30,13 @@
 
     </select>
 
+
+<!--    //插入微信-->
+
+    <insert id="insert">
+        INSERT INTO user(openid,name,phone,status,deleted,version)
+        VALUES(#{openid},#{name},#{phone},#{status},#{deleted},#{version})
+    </insert>
 
 
 
