@@ -19,11 +19,40 @@
 
 <!--    引入依赖，Pojo存放实体，注释，DTO需要引入公共模块Common,不依赖Server-->
      <dependencies>
+
         <dependency>
             <groupId>com.chaao</groupId>
             <artifactId>App-Common</artifactId>
         </dependency>
-    </dependencies>
+
+
+<!--         自己引入validation参数解析类-->
+<!--Springboot3.xx-->
+         <dependency>
+             <groupId>org.springframework.boot</groupId>
+             <artifactId>spring-boot-starter-validation</artifactId>
+         </dependency>
+         <dependency>
+             <groupId>io.swagger</groupId>
+             <artifactId>swagger-annotations</artifactId>
+             <version>1.5.22</version>
+             <scope>compile</scope>
+         </dependency>
+         <dependency>
+             <groupId>io.swagger.core.v3</groupId>
+             <artifactId>swagger-models-jakarta</artifactId>
+             <version>2.2.27</version>
+             <scope>compile</scope>
+         </dependency>
+         <dependency>
+             <groupId>io.swagger.core.v3</groupId>
+             <artifactId>swagger-annotations-jakarta</artifactId>
+             <version>2.2.27</version>
+             <scope>compile</scope>
+         </dependency>
+
+
+     </dependencies>
 
 
     <artifactId>App-Pojo</artifactId>

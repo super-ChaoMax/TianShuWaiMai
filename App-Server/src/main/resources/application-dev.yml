@@ -1,0 +1,37 @@
+#application-dev.yml
+spring:
+  # 数据库配置（windows）
+  datasource:
+    url: jdbc:mysql://localhost:3306/tianshuwaimai?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&allowMultiQueries=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+# Mybatis配置
+mybatis:
+  configuration:
+    # SQL语句打印到控制台，生产环境请关闭
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    # 配置SQL语句的格式化
+    map-underscore-to-camel-case: true
+
+# 阿里云配置
+aliyun:
+  oss:
+    endpoint: oss-cn-beijing.aliyuncs.com
+    access-key-id: ${ALIBABA_CLOUD_ACCESS_KEY_ID}
+    access-key-secret: ${ALIBABA_CLOUD_ACCESS_KEY_SECRET}
+    bucket-name: tianshuwaimai
+
+# JWT配置
+jwt:
+  secret: "jwt_secret_key_ZZCJWT1234567890abcdef"
+  expire: 86400
+
+
+
+# 微信小程序配置
+wx:
+  miniapp:
+    appid: wx686dd804016656da
+    secret: 384a1df3faf08e6ef48c385be07d2086

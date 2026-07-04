@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.chaao.appserver.mapper.WxUserLoginMapper">
+
+
+    <!-- findByUsername: 根据微信的唯一标识查询用户 -->
+    <select id="findByOpenid" resultType="entity.wx.WxUser">
+
+        SELECT
+        id,
+        openid,
+        name,
+        phone,
+        create_time as  createdTime,
+        update_time as  updateTime,
+        status,
+        deleted,
+        version
+
+        FROM user
+        WHERE openid = #{openid}
+        AND deleted = 0
+        And  status = 1
+        LIMIT 1
+
+    </select>
+
+
+<!--    //插入微信-->
+
+    <insert id="insert">
+
+        INSERT INTO user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="openid != null">openid,</if>
+            <if test="name != null">name,</if>
+            <if test="phone != null">phone,</if>
+            <if test="status != null">status,</if>
+            <if test="deleted != null">deleted,</if>
+            <if test="version != null">version,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="openid != null">#{openid},</if>
+            <if test="name != null">#{name},</if>
+            <if test="phone != null">#{phone},</if>
+            <if test="status != null">#{status},</if>
+            <if test="deleted != null">#{deleted},</if>
+            <if test="version != null">#{version},</if>
+        </trim>
+
+    </insert>
+
+
+
+</mapper>

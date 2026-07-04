@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.chaao</groupId>
+        <artifactId>TianShuWaiMaiApp</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <!-- 建议加上，明确指向父工程pom.xml的位置 -->
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <!-- 注意：这里需要删除原来的 spring-boot-starter-parent 的 parent 配置 -->
+
+<!--    <groupId>com.chaao</groupId>-->
+    <artifactId>App-Server</artifactId>
+    <!-- 只保留 artifactId，删除 version 标签 -->
+<!--    <version>0.0.1-SNAPSHOT</version>-->
+<!--    <name>App-Server</name>-->
+<!--    <description>App-Server</description>-->
+
+    <url/>
+
+
+    <licenses>
+        <license/>
+    </licenses>
+    <developers>
+        <developer/>
+    </developers>
+    <scm>
+        <connection/>
+        <developerConnection/>
+        <tag/>
+        <url/>
+    </scm>
+
+    <properties>
+        <java.version>17</java.version>
+    </properties>
+
+
+    <dependencies>
+
+<!--        依赖Common + jopo  +其他依赖-->
+        <!--     Common模块    -->
+         <dependency>
+             <groupId>com.chaao</groupId>
+             <artifactId>App-Common</artifactId>
+         </dependency>
+        <!--     Pojo模块    -->
+        <dependency>
+            <groupId>com.chaao</groupId>
+            <artifactId>App-Pojo</artifactId>
+        </dependency>
+
+
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mybatis.spring.boot</groupId>
+            <artifactId>mybatis-spring-boot-starter-test</artifactId>
+            <version>3.0.5</version>
+            <scope>test</scope>
+        </dependency>
+
+
+
+
+<!--    JTW + JWT常用的依赖-->
+
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.11.5</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.11.5</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.11.5</version>
+            <scope>runtime</scope>
+        </dependency>
+
+
+
+<!-- 		Spring  Security框架 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+
+<!-- 		引入阿里云服务依赖 -->
+        <dependency>
+            <groupId>com.aliyun.oss</groupId>
+            <artifactId>aliyun-sdk-oss</artifactId>
+            <version>3.17.4</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+
+
+
+
+
+<!-- 启动模块中引入父模块的logback并在启动类中配置xml-->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <!-- 继承父工程的版本号 -->
+            <version>${logback.version}</version>
+        </dependency>
+
+
+
+
+<!--        添加hutool-->
+         <dependency>
+             <groupId>cn.hutool</groupId>
+             <artifactId>hutool-all</artifactId>
+             <version>5.8.13</version>
+         </dependency>
+
+
+
+        <!-- fastjson2 JSON序列化 -->
+        <dependency>
+            <groupId>com.alibaba.fastjson2</groupId>
+            <artifactId>fastjson2</artifactId>
+            <version>2.0.32</version>
+        </dependency>
+
+
+<!--       重点：引入在线接口调试工具 Swagger-->
+            <!--  使用方法：
+                        1:  编写配置类SwaggerConfig
+                        2:启动类中添加 @EnableKnife4j 注解
+                        3:启动类中添加 @EnableSwagger2WebMvc 注解
+
+                  -->
+<!--        <dependency>-->
+<!--            <groupId>com.github.xiaoymin</groupId>-->
+<!--            <artifactId>knife4j-spring-boot-starter</artifactId>-->
+<!--            <version>3.0.2</version>-->
+<!--        </dependency>-->
+
+
+
+<!--       因为Spring3+jdk17  不适配Swagger-->
+<!--        现在使用SpringDoc 完美替代 Swagger/Knife4j 适配JDK17+Boot3-->
+            <!--
+                      不需要写任何配置,但是记得Security里面放行
+                       注解替换（极简对照）
+                        @Api(tags = "用户模块") → @Tag(name = "用户模块")
+                        @ApiOperation("登录接口") → @Operation(summary = "登录接口")
+                        @ApiModelProperty("账号") → @Schema(description = "账号")
+                        http://localhost:8080/swagger-ui/index.html
+            -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.8.0</version>
+        </dependency>
+
+
+<!--        Hutool -->
+         <dependency>
+             <groupId>cn.hutool</groupId>
+             <artifactId>hutool-all</artifactId>
+             <version>5.8.13</version>
+         </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-compile</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <annotationProcessorPaths>
+                                <path>
+                                    <groupId>org.projectlombok</groupId>
+                                    <artifactId>lombok</artifactId>
+                                </path>
+                            </annotationProcessorPaths>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>default-testCompile</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                        <configuration>
+                            <annotationProcessorPaths>
+                                <path>
+                                    <groupId>org.projectlombok</groupId>
+                                    <artifactId>lombok</artifactId>
+                                </path>
+                            </annotationProcessorPaths>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

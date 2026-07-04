@@ -47,7 +47,17 @@
          <groupId>com.chaao</groupId>
          <artifactId>App-Server</artifactId>
          <version>${project.version}</version> <!-- 自动继承父工程的 1.0-SNAPSHOT -->
-       </dependency>
+      </dependency>
+
+
+<!--      统一管理logbcak日志框架-->
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>1.4.11</version>
+      </dependency>
+
+
 
     </dependencies>
   </dependencyManagement>
