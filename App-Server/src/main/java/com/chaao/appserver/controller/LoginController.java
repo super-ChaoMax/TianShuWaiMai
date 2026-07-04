@@ -8,6 +8,11 @@ import com.chaao.appserver.util.WxApiUtil;
 import dto.LoginDTO;
 import dto.WxLoginDTO;
 import entity.wx.WxUser;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,6 +28,7 @@ import java.util.Map;
 
 @Slf4j
 @RestController
+@Tag(name = "登录接口模块（C端微信用户/后台）")
 public class LoginController {
 
     @Autowired
@@ -36,7 +42,8 @@ public class LoginController {
 
     // 后台管理员登录
     @PostMapping("/admin/login")
-    public Map<String,Object> adminLogin(@RequestBody LoginDTO dto){
+    @Operation(summary ="管理员账号密码登录")
+    public Map<String,Object> adminLogin(@RequestBody  @ApiParam("登录参数") LoginDTO dto){
         try {
             // 标记管理员登录类型
             UserDetailServiceImpl.LOGIN_TYPE.set(1);
@@ -68,7 +75,8 @@ public class LoginController {
 
     // 微信小程序登录
     @PostMapping("/wx/login")
-    public Result wxLogin(@RequestBody WxLoginDTO dto) {
+    @Operation( summary  ="微信小程序零时Code登录")
+    public Result wxLogin(@RequestBody  @ApiParam("微信登录参数") WxLoginDTO dto) {
         // 校验前端传过来的code
         if (dto.getCode() == null || dto.getCode().trim().isEmpty()) {
             return Result.error("登录授权码不能为空");

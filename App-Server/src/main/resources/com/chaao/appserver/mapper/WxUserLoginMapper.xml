@@ -34,8 +34,27 @@
 <!--    //插入微信-->
 
     <insert id="insert">
-        INSERT INTO user(openid,name,phone,status,deleted,version)
-        VALUES(#{openid},#{name},#{phone},#{status},#{deleted},#{version})
+
+        INSERT INTO user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="openid != null">openid,</if>
+            <if test="name != null">name,</if>
+            <if test="phone != null">phone,</if>
+            <if test="status != null">status,</if>
+            <if test="deleted != null">deleted,</if>
+            <if test="version != null">version,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="openid != null">#{openid},</if>
+            <if test="name != null">#{name},</if>
+            <if test="phone != null">#{phone},</if>
+            <if test="status != null">#{status},</if>
+            <if test="deleted != null">#{deleted},</if>
+            <if test="version != null">#{version},</if>
+        </trim>
+
     </insert>
 
 

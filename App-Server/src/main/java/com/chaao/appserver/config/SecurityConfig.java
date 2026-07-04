@@ -67,7 +67,10 @@ public class SecurityConfig {
                                 "/admin/login",
                                 "/wx/login",
                                 "/wx/update/profile",
-                                "/wx/get/phone"
+                                "/wx/get/phone",
+
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

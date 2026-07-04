@@ -156,6 +156,44 @@
         </dependency>
 
 
+<!--       重点：引入在线接口调试工具 Swagger-->
+            <!--  使用方法：
+                        1:  编写配置类SwaggerConfig
+                        2:启动类中添加 @EnableKnife4j 注解
+                        3:启动类中添加 @EnableSwagger2WebMvc 注解
+
+                  -->
+<!--        <dependency>-->
+<!--            <groupId>com.github.xiaoymin</groupId>-->
+<!--            <artifactId>knife4j-spring-boot-starter</artifactId>-->
+<!--            <version>3.0.2</version>-->
+<!--        </dependency>-->
+
+
+
+<!--       因为Spring3+jdk17  不适配Swagger-->
+<!--        现在使用SpringDoc 完美替代 Swagger/Knife4j 适配JDK17+Boot3-->
+            <!--
+                      不需要写任何配置,但是记得Security里面放行
+                       注解替换（极简对照）
+                        @Api(tags = "用户模块") → @Tag(name = "用户模块")
+                        @ApiOperation("登录接口") → @Operation(summary = "登录接口")
+                        @ApiModelProperty("账号") → @Schema(description = "账号")
+                        http://localhost:8080/swagger-ui/index.html
+            -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.8.0</version>
+        </dependency>
+
+
+<!--        Hutool -->
+         <dependency>
+             <groupId>cn.hutool</groupId>
+             <artifactId>hutool-all</artifactId>
+             <version>5.8.13</version>
+         </dependency>
 
     </dependencies>
 
