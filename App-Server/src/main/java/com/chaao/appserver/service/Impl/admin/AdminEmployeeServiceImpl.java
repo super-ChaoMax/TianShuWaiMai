@@ -4,7 +4,7 @@ import com.chaao.appserver.mapper.AdminEmployeeMapper;
 import com.chaao.appserver.mapper.EmployeeRoleMapper;
 import com.chaao.appserver.service.AdminEmployeeService;
 import com.yourcompany.common.util.XueHuaiID;
-import dto.admin.Employee.EmployeeAllQuery;
+import dto.admin.employee.EmployeeAllQuery;
 import dto.rbac.UserCreateRequest;
 import entity.rbac.SysUserRole;
 import lombok.extern.slf4j.Slf4j;

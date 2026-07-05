@@ -48,7 +48,7 @@
 
 
 <!--   新增员工和角色关联（可多添加）-->
-    <insert id="selectAllEmployee">
+    <insert id="insertEmployeeRoleBatch">
         <if test="list != null and list.size() > 0">
             INSERT INTO sys_employee_role (id, employee_id, role_id) VALUES
             <foreach collection="list" item="item" separator=",">
@@ -63,13 +63,20 @@
 
 
 
-    <!-- 员工列表查询 -->
-    <select id="selectEmployeeList" resultType="com.chaao.appserver.vo.admin.EmployeeVO">
+
+
+
+
+
+
+    <!-- 查询所有员工 -->
+    <select id="selectAllEmployee" resultType="vo.admin.EmployeeVO">
         SELECT
         id, username, name, phone
-        FROM employee
-        WHERE status = 1
-        LIMIT #{offset}, #{pageSize}
+        FROM
+        employee
+        WHERE
+        status = 1
     </select>
 
 

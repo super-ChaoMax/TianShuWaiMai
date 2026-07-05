@@ -24,8 +24,8 @@
         SELECT
         er.employee_id AS employeeId,  <!-- 【关键】查出员工ID并映射 -->
         r.id,
-        r.name AS roleName,   <!-- 如果数据库叫 name，DTO叫 roleName，必须用 AS 别名 -->
-        r.code AS roleCode    <!-- 同理，确保列名和属性名一致 -->
+        r.role_name AS roleName,   <!-- 如果数据库叫 name，DTO叫 roleName，必须用 AS 别名 -->
+        r.role_code AS roleCode    <!-- 同理，确保列名和属性名一致 -->
         FROM sys_role r
         INNER JOIN sys_employee_role er ON r.id = er.role_id
         WHERE er.employee_id IN

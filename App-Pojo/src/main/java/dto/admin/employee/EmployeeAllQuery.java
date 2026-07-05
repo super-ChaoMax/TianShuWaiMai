@@ -1,4 +1,4 @@
-package dto.admin.Employee;
+package dto.admin.employee;
 
 public class EmployeeAllQuery {
     private Integer offset; // 分页起始位置

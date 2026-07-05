@@ -1,7 +1,7 @@
 package com.chaao.appserver.controller.admin;
 
 import com.chaao.appserver.service.AdminEmployeeService;
-import dto.admin.Employee.EmployeeAllQuery;
+import dto.admin.employee.EmployeeAllQuery;
 import dto.rbac.UserCreateRequest;
 import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.Operation;

@@ -1,12 +1,13 @@
 package com.chaao.appserver.mapper;
 
-import dto.admin.Employee.EmployeeAllQuery;
+
+
 import dto.rbac.UserCreateRequest;
 import org.apache.ibatis.annotations.Mapper;
+
 import vo.admin.EmployeeVO;
-
+import dto.admin.employee.EmployeeAllQuery;
 import java.util.List;
-
 
 @Mapper
 public interface AdminEmployeeMapper {
