@@ -72,7 +72,15 @@
     <!-- 查询所有员工 -->
     <select id="selectAllEmployee" resultType="vo.admin.EmployeeVO">
         SELECT
-        id, username, name, phone
+        id,
+        username,
+        name,
+        phone,
+        sex,
+        id_number AS idNumber,
+        status,
+        create_time AS createTime,
+        update_time AS updateTime
         FROM
         employee
         WHERE
