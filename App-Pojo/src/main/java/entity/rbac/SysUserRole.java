@@ -15,6 +15,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class SysUserRole {
 
+    // ID
+    private Long id;
+
     /** 用户ID */
     private Long userId;
 
@@ -23,4 +26,7 @@ public class SysUserRole {
 
     /** 分配时间 */
     private LocalDateTime assignedAt;
+
+    /** 删除标识 */
+    private Integer deleted;
 }

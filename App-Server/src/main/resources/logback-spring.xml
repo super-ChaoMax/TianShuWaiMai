@@ -49,14 +49,19 @@
              fileNamePattern: 定义历史日志文件的命名规则。
              %d{yyyy-MM-dd} 表示每天生成一个文件，例如 my-web-app.2024-01-01.log
              maxHistory: 最多保留30天的历史日志，超过30天自动删除，防止磁盘爆满 -->
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_PATH}/${APP_NAME}.%d{yyyy-MM-dd}.log</fileNamePattern>
+        <!-- 将 class 修改为 SizeAndTimeBasedRollingPolicy -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- 注意：这里必须加上 %i 占位符，用于同一天内按大小切分时的文件序号 -->
+            <fileNamePattern>${LOG_PATH}/${APP_NAME}.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <maxHistory>30</maxHistory>
-            <!-- 单个日志大小-->
+            <!-- 单个日志文件大小限制 -->
             <maxFileSize>10MB</maxFileSize>
-            <!-- 增加这一行：所有历史日志总大小不能超过 10GB -->
+            <!-- 所有历史日志总大小不能超过 10GB -->
             <totalSizeCap>10GB</totalSizeCap>
         </rollingPolicy>
+
+
+
 
         <!-- 解析：这里的 encoder 格式与 CONSOLE 保持一致，方便统一解析。 -->
         <encoder>

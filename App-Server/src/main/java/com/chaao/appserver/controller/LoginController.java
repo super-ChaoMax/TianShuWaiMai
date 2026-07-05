@@ -8,8 +8,6 @@ import com.chaao.appserver.util.WxApiUtil;
 import dto.LoginDTO;
 import dto.WxLoginDTO;
 import entity.wx.WxUser;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.chaao.appserver.mapper.EmployeeRoleMapper">
+
+
+    <!--   新增员工和角色关联（可多添加）-->
+    <insert id="insertEmployeeRoleBatch">
+        <if test="list != null and list.size() > 0">
+            INSERT INTO sys_employee_role (id, employee_id, role_id) VALUES
+            <foreach collection="list" item="item" separator=",">
+                (#{item.id}, #{item.userId}, #{item.roleId})
+            </foreach>
+        </if>
+    </insert>
+
+</mapper>

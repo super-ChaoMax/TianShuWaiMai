@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.chaao.appserver.mapper.AdminEmployeeMapper">
+
+<!--    查询用户名是否重复-->
+    <select id="selectByUsername" parameterType="string" resultType="int">
+        SELECT COUNT(*) FROM employee WHERE username = #{username}
+    </select>
+
+
+
+
+    <!-- 新增员工（动态字段插入） -->
+    <insert id="insert" parameterType="entity.rbac.SysUser">
+        INSERT INTO employee
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+
+            <if test="id != null">id,</if>
+            <if test="username != null and username != ''">username,</if>
+            <if test="password != null and password != ''">password,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="phone != null and phone != ''">phone,</if>
+            <if test="sex != null   ">sex,</if>
+            <if test="idNumber != null and idNumber != ''">id_number,</if>
+            <if test="status != null">status,</if>
+            <!--
+              注意：对于 createTime, updateTime, version, deleted
+              通常建议由数据库的 DEFAULT 值或 MyBatis-Plus 自动填充来处理，
+              因此这里不需要在插入时显式传入。如果前端确实传了，也可以加上 if 判断。
+            -->
+        </trim>
+        VALUES
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="username != null and username != ''">#{username},</if>
+            <if test="password != null and password != ''">#{password},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="phone != null and phone != ''">#{phone},</if>
+            <if test="sex != null">#{sex},</if>
+            <if test="idNumber != null and idNumber != ''">#{idNumber},</if>
+            <if test="status != null">#{status},</if>
+        </trim>
+    </insert>
+
+<!--   新增员工和角色关联（可多添加）-->
+    <insert id="insertEmployeeRoleBatch">
+        <if test="list != null and list.size() > 0">
+            INSERT INTO sys_employee_role (id, employee_id, role_id) VALUES
+            <foreach collection="list" item="item" separator=",">
+                (#{item.id}, #{item.employeeId}, #{item.roleId})
+            </foreach>
+        </if>
+    </insert>
+
+</mapper>

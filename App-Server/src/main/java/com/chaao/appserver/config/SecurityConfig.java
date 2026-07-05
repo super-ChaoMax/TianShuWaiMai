@@ -70,7 +70,13 @@ public class SecurityConfig {
                                 "/wx/get/phone",
 
                                 "/swagger-ui/**",
-                                "/v3/api-docs/**"
+                                "/v3/api-docs/**",
+
+
+//                                后续生产环境必须删除的
+                                "/admin/employee/**"        // 员工接口
+
+
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
