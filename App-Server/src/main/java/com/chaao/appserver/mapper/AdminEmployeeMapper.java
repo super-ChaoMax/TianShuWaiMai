@@ -26,6 +26,6 @@ public interface AdminEmployeeMapper {
       List<EmployeeVO> selectAllEmployee(EmployeeAllQuery employeeAllQuery);
 
       //查询单个员工信息
-//      EmployeeVO selectEmployeeById(Long userId);
+      EmployeeVO selectEmployeeById(Long userId);
 
 }

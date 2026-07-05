@@ -61,4 +61,13 @@ public class EmployeeController {
 
 
 
+
+//    查询单个员工，用占位符 {id}
+    @Operation(summary ="查询单个员工")
+    @GetMapping("/{id}")
+    public EmployeeVO selectEmployeeById(@PathVariable Long id) {
+        log.info("查询单个员工");
+        return adminEmployeeService.selectEmployeeById(id);
+    }
+
 }

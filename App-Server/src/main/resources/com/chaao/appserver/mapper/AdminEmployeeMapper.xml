@@ -89,4 +89,68 @@
 
 
 
+
+
+<!--  单条嵌套映射——包含员工表查询  +  角色查询  -->
+
+    <!-- 定义结果映射：这是核心
+
+      1.column：对应数据库（SQL 结果集）
+            含义：数据库表中的真实列名，或者你在 SQL 语句中使用 AS 设置的别名。
+            作用：MyBatis 从数据库查询结果中，根据这个名字去提取数据。
+
+
+        2. property：对应 Java 对象（实体类/VO/DTO）
+             含义：Java 类（如你的 RoleSimpleVO）中定义的属性名（字段名）。
+             作用：MyBatis 提取到数据后，会调用这个 Java 对象的 set 方法（例如 setRoleName()），把数据塞进去。
+
+     -->
+    <resultMap id="EmployeeDetailResultMap" type="vo.admin.EmployeeVO">
+
+        <!-- 1. 映射员工主表字段 -->
+        <!-- 这里的 column 对应 SQL 中的别名 -->
+        <id property="id" column="e_id"/> <!-- 注意：这里用别名区分主键 -->
+        <result property="username" column="username"/>
+        <result property="name" column="name"/>
+        <result property="phone" column="phone"/>
+        <result property="sex" column="sex"/>
+        <result property="idNumber" column="id_number"/>
+        <result property="status" column="status"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+
+
+        <!-- 2. 嵌套映射角色集合 (一对多关系) -->
+        <collection property="roles" ofType="vo.admin.RoleSimpleVO">
+            <!-- 这里的 column 对应 SQL 中的别名 -->
+            <id property="id" column="r_id"/>
+            <result property="roleName" column="role_name"/>
+            <result property="roleCode" column="role_code"/>
+
+        </collection>
+
+    </resultMap>
+
+    <!-- 查询语句 -->
+    <select id="selectEmployeeById" resultMap="EmployeeDetailResultMap">
+        SELECT
+        e.id AS e_id,       <!-- 关键：必须给主键起别名，防止和角色ID冲突 -->
+        e.username,
+        e.name,
+        e.phone,
+        e.sex,
+        e.id_number AS id_number,
+        e.status,
+        e.create_time,
+        e.update_time,
+
+        r.id AS r_id,       <!-- 关键：角色ID也要别名 -->
+        r.role_name,
+        r.role_code
+        FROM employee e
+        LEFT JOIN sys_employee_role er ON e.id = er.employee_id
+        LEFT JOIN sys_role r ON er.role_id = r.id
+        WHERE e.id = #{id}      <!-- 通常用于查单个详情 -->
+    </select>
+
 </mapper>

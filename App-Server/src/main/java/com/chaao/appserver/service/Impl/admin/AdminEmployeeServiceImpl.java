@@ -149,4 +149,29 @@ public class AdminEmployeeServiceImpl implements AdminEmployeeService {
     }
 
 
+
+
+//    单个查询
+    @Override
+    public EmployeeVO selectEmployeeById(Long userId) {
+        log.info("查询单个员工");
+        EmployeeVO employeeVO = adminEmployeeMapper.selectEmployeeById(userId);
+//        log.info("查询单个员工，结果：{}", employeeVO);
+        //因为
+        // e. 开头 -> 查 employee 表
+        //r. 开头 -> 查 sys_role 表
+        //er. 开头 -> 查 sys_employee_role 关联表
+        //我们需要Employee_id，但是我们没有查询查 sys_employee_role 关联表，那我们自己把传进来的ID给他加一下
+            //给List<RoleSimpleVO> roles循环添加employee_id
+        employeeVO.getRoles().forEach(role -> role.setEmployeeId(userId));
+
+
+
+        return employeeVO;
+    }
+
+
+
+
+
 }

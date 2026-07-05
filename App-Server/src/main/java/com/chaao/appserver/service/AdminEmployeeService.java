@@ -16,4 +16,7 @@ public interface AdminEmployeeService {
     //查询所有员工角色
     public List<EmployeeVO> selectAllEmployee(EmployeeAllQuery employeeAllQuery);
 
+     //查询单个员工角色
+     public EmployeeVO selectEmployeeById(Long userId);
+
 }
