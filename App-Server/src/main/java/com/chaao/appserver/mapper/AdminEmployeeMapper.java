@@ -1,8 +1,9 @@
 package com.chaao.appserver.mapper;
 
+import dto.admin.Employee.EmployeeAllQuery;
 import dto.rbac.UserCreateRequest;
-import entity.rbac.SysUserRole;
 import org.apache.ibatis.annotations.Mapper;
+import vo.admin.EmployeeVO;
 
 import java.util.List;
 
@@ -16,5 +17,14 @@ public interface AdminEmployeeMapper {
     //新增员工
     int insert(UserCreateRequest user );
 
+
+
+    //修改员工的同时就要回显员工所拥有的角色
+
+      //查询所有员工信息（需要分页的参数）
+      List<EmployeeVO> selectAllEmployee(EmployeeAllQuery employeeAllQuery);
+
+      //查询单个员工信息
+//      EmployeeVO selectEmployeeById(Long userId);
 
 }

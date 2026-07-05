@@ -4,6 +4,7 @@ import com.chaao.appserver.mapper.AdminEmployeeMapper;
 import com.chaao.appserver.mapper.EmployeeRoleMapper;
 import com.chaao.appserver.service.AdminEmployeeService;
 import com.yourcompany.common.util.XueHuaiID;
+import dto.admin.Employee.EmployeeAllQuery;
 import dto.rbac.UserCreateRequest;
 import entity.rbac.SysUserRole;
 import lombok.extern.slf4j.Slf4j;
@@ -11,10 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
+import vo.admin.EmployeeVO;
+import vo.admin.RoleSimpleVO;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -101,6 +104,49 @@ public class AdminEmployeeServiceImpl implements AdminEmployeeService {
     }
 
 
+
+//    查询所有员工
+    @Override
+    public List<EmployeeVO> selectAllEmployee(EmployeeAllQuery employeeAllQuery) {
+
+        //查询所有的员工
+        List<EmployeeVO> employeeList = adminEmployeeMapper.selectAllEmployee(employeeAllQuery);
+
+
+        // 防御性编程：如果没查到员工，直接返回，避免下面报错
+        if (employeeList == null || employeeList.isEmpty()) {
+            return employeeList;
+        }
+
+
+
+        // 2. 提取 ID 列表
+        List<Long> employeeIds = employeeList.stream()
+                .map(EmployeeVO::getId)
+                .collect(Collectors.toList());
+
+        // 3. 批量查询角色
+        // 注意：这里查出来的 roleList 是扁平的，比如：
+        // [{roleId:1, employeeId:100}, {roleId:2, employeeId:100}, {roleId:3, employeeId:101}]
+        List<RoleSimpleVO> roleList = employeeRoleMapper.selectEmployeeRoleBatch(employeeIds);
+
+        // 4. 使用 Map 将角色归类 (关键修改点)
+        // 必须按照【员工ID】(employeeId) 进行分组，而不是角色ID
+        Map<Long, List<RoleSimpleVO>> roleMap = roleList.stream()
+                .collect(Collectors.groupingBy(RoleSimpleVO::getEmployeeId));
+
+        // 5. 组装数据
+        for (EmployeeVO emp : employeeList) {
+            // 从 Map 中取出该员工对应的角色列表塞进去
+            // getOrDefault 保证如果没有角色，就塞一个空列表，防止前端报空指针
+            emp.setRoles(roleMap.getOrDefault(emp.getId(), Collections.emptyList()));
+        }
+
+        // 6. 返回组装好的员工列表 (关键修改点)
+        return employeeList;
+
+
+    }
 
 
 }

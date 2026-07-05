@@ -1,6 +1,7 @@
 package com.chaao.appserver.controller.admin;
 
 import com.chaao.appserver.service.AdminEmployeeService;
+import dto.admin.Employee.EmployeeAllQuery;
 import dto.rbac.UserCreateRequest;
 import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,6 +10,9 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import vo.admin.EmployeeVO;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -43,6 +47,18 @@ public class EmployeeController {
         return adminEmployeeService.addEmployee(userCreateRequest);
 
     }
+
+
+
+//    查询所有的 员工
+    @Operation(summary ="查询所有员工")
+    @GetMapping()
+    public List<EmployeeVO> selectAllEmployee(@ModelAttribute EmployeeAllQuery employeeAllQuery) {
+        log.info("查询所有员工");
+        return adminEmployeeService.selectAllEmployee(employeeAllQuery);
+    }
+
+
 
 
 }
