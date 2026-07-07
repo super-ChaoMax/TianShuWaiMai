@@ -5,7 +5,7 @@
 
 <mapper namespace="com.chaao.appserver.mapper.wx.CategoryMapper">
 
-    <select id="selectAllCategory" resultType="dto.wx.CategoryDTO">
+    <select id="selectAllCategory" resultType="vo.wx.CategoryVO">
         SELECT id, name, type, status
         FROM category
         WHERE deleted = 0

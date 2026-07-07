@@ -75,7 +75,8 @@ public class SecurityConfig {
 
 //                                后续生产环境必须删除的
                                 "/admin/employee/**",        // 员工接口
-                                "/wx/category/**"              //菜品分类
+                                "/wx/category/**" ,             //菜品分类
+                                "/wx/dish/**"
 
                         ).permitAll()
                         .anyRequest().authenticated()

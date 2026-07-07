@@ -1,7 +1,7 @@
 package com.chaao.appserver.controller.wx;
 
 import com.chaao.appserver.service.CategoryService;
-import dto.wx.CategoryDTO;
+import vo.wx.CategoryVO;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +24,8 @@ public class CategoryController {
 
 
     @GetMapping()
-    public Result<List<CategoryDTO>> selectAllCategory() {
-        List<CategoryDTO> list = categoryService.selectAllCategory();
+    public Result<List<CategoryVO>> selectAllCategory() {
+        List<CategoryVO> list = categoryService.selectAllCategory();
         log.info("查询所有菜品");
         return Result.success("操作成功", list);
     }

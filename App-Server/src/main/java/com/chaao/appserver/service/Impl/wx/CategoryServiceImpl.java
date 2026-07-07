@@ -2,7 +2,7 @@ package com.chaao.appserver.service.Impl.wx;
 
 import com.chaao.appserver.mapper.wx.CategoryMapper;
 import com.chaao.appserver.service.CategoryService;
-import dto.wx.CategoryDTO;
+import vo.wx.CategoryVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +17,7 @@ public class CategoryServiceImpl implements CategoryService {
 
 
     @Override
-    public List<CategoryDTO> selectAllCategory() {
+    public List<CategoryVO> selectAllCategory() {
         return categoryMapper.selectAllCategory();
     }
 }

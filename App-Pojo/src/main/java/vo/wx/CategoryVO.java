@@ -1,9 +1,9 @@
-package dto.wx;
+package vo.wx;
 
 import lombok.Data;
 
 @Data
-public class CategoryDTO {
+public class CategoryVO {
 //    给前端返回的菜单列表数据
 
     private Long id;

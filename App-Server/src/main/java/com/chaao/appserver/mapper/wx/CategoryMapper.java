@@ -1,6 +1,6 @@
 package com.chaao.appserver.mapper.wx;
 
-import dto.wx.CategoryDTO;
+import vo.wx.CategoryVO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -9,7 +9,7 @@ import java.util.List;
 public interface CategoryMapper {
 
 //    返回全部分类（无参）
-    List<CategoryDTO> selectAllCategory();
+    List<CategoryVO> selectAllCategory();
 
 
 }
