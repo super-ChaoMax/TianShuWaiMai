@@ -24,6 +24,8 @@ import vo.Result;
 import java.util.HashMap;
 import java.util.Map;
 
+//接口文档地址：http://localhost:8080/swagger-ui/index.html
+
 @Slf4j
 @RestController
 @Tag(name = "登录接口模块（C端微信用户/后台）")
