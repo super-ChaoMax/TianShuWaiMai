@@ -1,6 +1,5 @@
-package vo.wx;
+package com.chaao.appserver.DishRedisTest;
 
-import cn.hutool.json.JSON;
 import lombok.Builder;
 import lombok.Data;
 
@@ -8,7 +7,7 @@ import java.util.List;
 
 @Data
 @Builder
-public class DishVO {
+public class DishVOTest {
 //    返回给前端的
     private Long id; // 菜品id,
     private String name; // 菜品名,

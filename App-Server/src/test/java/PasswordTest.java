@@ -1,5 +1,11 @@
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import java.util.concurrent.TimeUnit;
+
 
 public class PasswordTest {
 
@@ -21,4 +27,8 @@ public class PasswordTest {
         String encode = encoder.encode("123456");
         System.out.println("新加密密码：" + encode);
     }
+
+
+
+
 }
