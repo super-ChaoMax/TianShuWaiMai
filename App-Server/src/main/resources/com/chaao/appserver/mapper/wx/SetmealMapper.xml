@@ -6,7 +6,7 @@
 <mapper namespace="com.chaao.appserver.mapper.wx.SetmealMapper">
 
 
-<!--    根据ID查出 套餐-->
+<!--    根据分类ID查出 套餐-->
      <select id="getSetmealById" resultType="vo.wx.SetmealVO">
         SELECT
         id,
@@ -22,6 +22,28 @@
          AND category_id = #{categoryId}
          LIMIT #{start}, #{pageSize}
      </select>
+
+
+<!--
+根据套餐ID查出菜品，
+回到你之前的套餐（Setmeal）问题，两者的区别在于：
+套餐查菜品：通常是平铺展示（比如列表里显示：套餐A-宫保鸡丁，套餐A-麻婆豆腐），或者数据结构相对简单，直接用 JOIN 查出来非常直观，前端也容易处理。
+
+员工查角色：通常是聚合展示（比如：员工张三 [管理员, 财务]），
+角色是依附于员工的一个属性列表。为了避免数据大量重复，采用 “主表查询 + 附表批量查询 + 内存组装” 是更高级且常见的工程化手段。
+-->
+
+    <!-- 根据套餐id查询包含的菜品 -->
+    <select id="getSetmealDishById" resultType="vo.wx.SetemalDishVO">
+        SELECT
+        d.name,          <!-- 修改点：从 dish 表中获取 name，而不是 setmeal_dish 表 -->
+        sd.copies,
+        d.image,
+        d.description
+        FROM setmeal_dish sd
+        LEFT JOIN dish d ON sd.dish_id = d.id
+        WHERE sd.setmeal_id = #{id}
+    </select>
 
 
 

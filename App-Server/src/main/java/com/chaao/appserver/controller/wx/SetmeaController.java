@@ -6,14 +6,13 @@ import dto.wx.DishDTO;
 import dto.wx.SetmealDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import vo.Result;
 import vo.wx.DishVO;
+import vo.wx.SetemalDishVO;
 import vo.wx.SetmealVO;
 
 import java.util.List;
@@ -34,6 +33,15 @@ public class SetmeaController {
         List<SetmealVO> list = setmealService.getSetmealById(dto);
         return Result.success(list);
 
+    }
+
+
+
+    @GetMapping("/dish/{id}")
+    @Operation(summary = "根据套餐ID查询包含的菜品")
+    public Result<List<SetemalDishVO>> getSetmealDishById(@PathVariable @NotNull Long id) {
+        List<SetemalDishVO> list = setmealService.getSetmealDishById(id);
+        return Result.success(list);
     }
 
 }

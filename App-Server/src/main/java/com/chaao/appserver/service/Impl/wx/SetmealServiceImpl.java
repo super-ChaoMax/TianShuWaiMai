@@ -5,6 +5,7 @@ import com.chaao.appserver.service.SetmealService;
 import dto.wx.SetmealDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import vo.wx.SetemalDishVO;
 import vo.wx.SetmealVO;
 
 import java.util.List;
@@ -21,4 +22,14 @@ public class SetmealServiceImpl implements SetmealService {
         setmealDTO.setStart((setmealDTO.getPage() - 1) * setmealDTO.getPageSize());
         return setmealMapper.getSetmealById(setmealDTO);
     }
+
+
+
+    @Override
+    public List<SetemalDishVO> getSetmealDishById(Long id) {
+        return  setmealMapper.getSetmealDishById(id);
+    }
+
+
+
 }
