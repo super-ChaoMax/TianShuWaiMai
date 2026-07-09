@@ -27,7 +27,7 @@ public class DishRedisUtil {
     /**
      * 设置：存入菜品缓存（给前端的）
      */
-    public void saveGoodsCache(DishVO dishVO){
+    public void setDish(DishVO dishVO){
         // 1.拼接商品详情key
         String DishKey = String.format(Dish_KEY, dishVO.getId());
         // 2.存入商品JSON，设置1小时过期
@@ -40,7 +40,7 @@ public class DishRedisUtil {
     /**
      * 查询： 根据菜品id  获取菜品详情
      */
-    public DishVO getGoodsById(Long goodsId){
+    public DishVO getDishById(Long goodsId){
         String key = String.format(Dish_KEY,goodsId);
         //Redis 里存的是 JSON，反序列化后变成了 LinkedHashMap，不能直接强转为你的 DishVOTest 对象。
 //        return (DishVOTest) redisTemplate.opsForValue().get(key);
@@ -69,7 +69,7 @@ public class DishRedisUtil {
         // 遍历id查询商品详情
         for (Object idObj : goodsIdSet) {
             Long goodsId = Long.valueOf(idObj.toString());
-            DishVO dishVO = getGoodsById(goodsId);
+            DishVO dishVO = getDishById(goodsId);
             if(dishVO != null){
                 dishVOList.add(dishVO);
             }

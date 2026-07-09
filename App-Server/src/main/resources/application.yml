@@ -1,15 +1,36 @@
-#application.yml：主配置文件，通常存放所有环境共用的基础配置，
-#例如应用名称、端口号、日志级别等。它不会被直接覆盖，而是作为“默认值”被其他环境配置文件继承或补充。
-spring:
-  application:
-    name: App-Server
+  #application.yml：主配置文件，通常存放所有环境共用的基础配置，
+  #例如应用名称、端口号、日志级别等。它不会被直接覆盖，而是作为“默认值”被其他环境配置文件继承或补充。
+  spring:
+    application:
+      name: App-Server
 
-#    这样项目在本地开发时就会自动使用 application-dev.yml 的配置；
-#部署到服务器时，改为 active: prod 即可无缝切换到生产配置。
-  profiles:
-    active: dev
+    # 数据库配置（windows）
+    datasource:
+      driver-class-name: ${sky.datasource.driver-class-name}
+      url: jdbc:mysql://${sky.datasource.host}:${sky.datasource.port}/${sky.datasource.database}?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&allowMultiQueries=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+      username: ${sky.datasource.username}
+      password: ${sky.datasource.password}
+
+    #  spring data rdis 的配置
+    redis:
+      host: ${sky.redis.host}
+      port: ${sky.redis.port}
+      password: ${sky.redis.password}
+      database: ${sky.redis.database}
+
+    profiles:
+      active: dev
 
 
+  mybatis:
+    configuration:
+      map-underscore-to-camel-case: true
+  
+  #    这样项目在本地开发时就会自动使用 application-dev.yml 的配置；
+  #部署到服务器时，改为 active: prod 即可无缝切换到生产配置。
 
-
-
+  
+  
+  
+  
+  

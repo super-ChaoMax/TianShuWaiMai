@@ -5,6 +5,7 @@
 
 <mapper namespace="com.chaao.appserver.mapper.wx.DishMapper">
 
+    <!-- 入参是 DishDTO 对象，取值必须  对象.字段名 -->
     <select id="dishListByCategoryId" resultType="vo.wx.DishVO">
         SELECT
         id,
@@ -13,12 +14,13 @@
         image,
         description,
         status,
+        category_id,
         flavor_json  as flavorJson
         FROM dish
         WHERE deleted = 0
-        AND status = #{status}
-        AND category_id = #{categoryId}
-        LIMIT #{start}, #{pageSize}
+        AND status = #{dto.status}
+        AND category_id = #{dto.categoryId}
+        LIMIT #{dto.start}, #{dto.pageSize}
     </select>
 
 

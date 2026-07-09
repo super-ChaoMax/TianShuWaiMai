@@ -7,7 +7,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-@Builder
+//@Builder
 public class DishVO {
 //    返回给前端的
     private Long id; // 菜品id,

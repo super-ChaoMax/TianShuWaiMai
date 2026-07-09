@@ -8,8 +8,15 @@ public class DishDTO {
 
 
     // 1. 菜品查询参数
-    @Schema(description = "分类id(必须)")
-    private Long categoryId;
+    @Schema(description = "分类id(必须)，也是传的String")
+    //丢失精度问题
+//    private String   categoryId;
+
+    private Long   categoryId;
+
+    // 兼容前端传id
+    private Long id;
+
     @Schema(description = "类型（必须） 1菜品 2套餐")
     private Integer type;
 

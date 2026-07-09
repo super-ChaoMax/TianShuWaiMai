@@ -1,11 +1,25 @@
 #application-dev.yml
-spring:
+sky:
   # 数据库配置（windows）
   datasource:
-    url: jdbc:mysql://localhost:3306/tianshuwaimai?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&allowMultiQueries=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+    #MySQL 驱动类
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    host: localhost
+    port: 3306
+    database: tianshuwaimai
     username: root
     password: 123456
-    driver-class-name: com.mysql.cj.jdbc.Driver
+
+
+
+  #  spring data rdis 的配置
+  redis:
+    host: 192.168.1.100
+    port: 6379
+    password: 123456
+    database: 1
+
+
 
 # Mybatis配置
 mybatis:
@@ -25,7 +39,7 @@ aliyun:
 
 # JWT配置
 jwt:
-  secret: "jwt_secret_key_ZZCJWT1234567890abcdef"
+  secret: "jwt_secret_key_zzc666888abcdefghijklmnopqrst"
   expire: 86400
 
 
