@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.chaao.appserver.mapper.wx.ShoppingCartMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="entity.wx.ShoppingCart">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="image" property="image" />
+        <result column="user_id" property="userId" />
+        <result column="dish_id" property="dishId" />
+        <result column="setmeal_id" property="setmealId" />
+        <result column="dish_flavor" property="dishFlavor" />
+        <result column="number" property="number" />
+        <result column="amount" property="amount" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <!-- 通用查询列 -->
+    <sql id="Base_Column_List">
+        id, name, image, user_id, dish_id, setmeal_id, dish_flavor, number, amount, create_time, update_time
+    </sql>
+
+
+
+    <!-- 1. 获取当前用户购物车列表 -->
+    <select id="getShoppingCartList" parameterType="entity.wx.ShoppingCart" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from shopping_cart
+        where user_id = #{userId}
+        order by create_time desc
+    </select>
+
+
+
+    <!-- 2.
+       动态条件查询购物车列表是否存在（通常只查当前用户的）
+       返回数量存在走 update ，不存在走 insert
+      -->
+
+<!--
+    修改后的：
+     根据条件查询购物车中是否存在该商品
+     如果存在，返回购物车记录的 id；如果不存在，返回 null
+     在 XML 中，userId 直接引用，而 ShoppingCartDTO 对象中的属性需要通过 cart. 前缀来访问
+ -->
+    <select id="selectIdByCondition"  resultType="java.lang.Long">
+        select id
+        from shopping_cart
+        where user_id = #{userId}
+        <if test="cart.dishId != null">
+            and dish_id = #{cart.dishId}
+        </if>
+        <if test="cart.setmealId != null">
+            and setmeal_id = #{cart.setmealId}
+        </if>
+        <if test="cart.dishFlavor != null">
+            and dish_flavor = #{cart.dishFlavor}
+        </if>
+        limit 1
+    </select>
+
+
+
+
+
+
+
+
+
+
+    <!-- 2. 插入数据 -->
+    <insert id="addToShoppingCart" parameterType="entity.wx.ShoppingCart" useGeneratedKeys="true" keyProperty="id">
+        insert into shopping_cart
+        (name, image, user_id, dish_id, setmeal_id, dish_flavor, number, amount, create_time, update_time)
+        values
+        (#{name}, #{image}, #{userId}, #{dishId}, #{setmealId}, #{dishFlavor}, #{number}, #{amount}, #{createTime}, #{updateTime})
+    </insert>
+
+    <!-- 3. 根据 ID 更新数量 -->
+    <update id="updateNumberById" parameterType="entity.wx.ShoppingCart">
+        update shopping_cart
+        set number = number + #{number},
+        update_time = #{updateTime}
+        where id = #{id}
+    </update>
+
+
+
+
+<!--    减少购物车数量-->
+    <update id="subNumberById" parameterType="entity.wx.ShoppingCart">
+        update shopping_cart
+        set number = number - #{number},
+        update_time = #{updateTime}
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="dishId != null">
+                and dish_id = #{dishId}
+            </if>
+            <if test="setmealId != null">
+                and setmeal_id = #{setmealId}
+            </if>
+        </where>
+    </update>
+
+
+    <!-- 5. 根据主键删除 -->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        delete from shopping_cart where id = #{id}
+    </delete>
+
+
+
+    <!-- 4. 根据用户 ID 删除 -->
+    <delete id="deleteByUserId" parameterType="java.lang.Long">
+        delete from shopping_cart where user_id = #{userId}
+    </delete>
+
+
+
+</mapper>
+
+

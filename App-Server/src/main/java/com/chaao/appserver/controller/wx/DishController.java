@@ -59,11 +59,13 @@ public class DishController {
         // 2. 缓存为空，查询数据库
         List<DishVO> dbList = dishService.dishListByCategoryId(dto);
         if (CollectionUtils.isEmpty(dbList)) {
+            log.info("数据库中没有数据");
             return Result.success(new ArrayList<>());
         }
 
         // 3. 数据库数据批量存入Redis
         for (DishVO dishVO : dbList) {
+            log.info("存入Redis的菜品数据：{}", dishVO);
             dishRedisUtil.setDish(dishVO);
         }
 

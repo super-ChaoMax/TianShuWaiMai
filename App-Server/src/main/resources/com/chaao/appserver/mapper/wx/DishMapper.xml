@@ -5,8 +5,60 @@
 
 <mapper namespace="com.chaao.appserver.mapper.wx.DishMapper">
 
-    <!-- 入参是 DishDTO 对象，取值必须  对象.字段名 -->
-    <select id="dishListByCategoryId" resultType="vo.wx.DishVO">
+<!--
+    SQL 查询结果无法自动映射到 List<Flavor>
+    你现在的代码存在一个类型不匹配的问题：
+    数据库：flavor_json 字段存的是 字符串（JSON 格式的文本）。
+    Java 对象：DishVO 里的 flavorJson 字段定义的是 List<Flavor> 对象。
+    MyBatis 的原生能力无法自动把数据库里的“JSON 字符串”转换成 Java 的“List 对象”。 它只会尝试把字符串赋值给 List，结果就是 null 或者报错。
+
+
+     所以我们要自定义<resultMap>Mybaits映射返回值  -->
+
+<!--    <select id="dishListByCategoryId" resultType="vo.wx.DishVO">-->
+<!--        SELECT-->
+<!--        id,-->
+<!--        name,-->
+<!--        price,-->
+<!--        image,-->
+<!--        description,-->
+<!--        status,-->
+<!--        category_id,-->
+<!--        flavor_json-->
+<!--        FROM dish-->
+<!--        WHERE deleted = 0-->
+<!--        AND status = #{dto.status}-->
+<!--        AND category_id = #{dto.categoryId}-->
+<!--        LIMIT #{dto.start}, #{dto.pageSize}-->
+<!--    </select>-->
+
+
+    <!-- 定义 resultMap -->
+    <resultMap id="DishVOMap" type="vo.wx.DishVO">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="price" column="price"/>
+        <result property="image" column="image"/>
+        <result property="description" column="description"/>
+        <result property="status" column="status"/>
+        <result property="categoryId" column="category_id"/>
+
+        <!-- 重点：显式指定 column 和 property，MyBatis 会自动识别 VO 上的 @TableField 注解中的 typeHandler -->
+<!--        <result property="flavorJson" column="flavor_json"/>-->
+
+<!--        用的原生mybaits所以我们要自定义转化-->
+        <!-- 【核心】显式指定原生 TypeHandler 的全路径 -->
+        <result
+                property="flavors"
+                column="flavor_json"
+                typeHandler="com.chaao.appserver.handler.FlavorJsonTypeHandler"
+        />
+
+    </resultMap>
+
+    <!-- 使用 resultMap 代替 resultType -->
+<!--    让数据库查出来的 VO 保持 String 类型，然后在 Service 层转成 List 返回给前端。-->
+    <select id="dishListByCategoryId" resultMap="DishVOMap">
         SELECT
         id,
         name,
@@ -15,7 +67,7 @@
         description,
         status,
         category_id,
-        flavor_json  as flavorJson
+        flavor_json
         FROM dish
         WHERE deleted = 0
         AND status = #{dto.status}
