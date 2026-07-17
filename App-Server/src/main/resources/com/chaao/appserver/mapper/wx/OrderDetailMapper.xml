@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.chaao.appserver.mapper.wx.OrderDetailMapper">
+
+    <!-- 批量插入订单明细 -->
+    <insert id="insertBatch" parameterType="list">
+        INSERT INTO order_detail (id, order_id, dish_id, setmeal_id, name, image, number, amount)
+        VALUES
+        <foreach collection="orderDetails" item="od" separator=",">
+            (#{od.id},#{od.orderId}, #{od.dishId}, #{od.setmealId}, #{od.name}, #{od.image},
+            #{od.number}, #{od.amount})
+        </foreach>
+    </insert>
+
+</mapper>

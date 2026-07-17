@@ -42,4 +42,6 @@ public class XueHuaiID {
         // 订单号格式：ORD + 日期 + 流水号
         return String.format("ORD%s%s", dateStr, sequence);
     }
+
+
 }

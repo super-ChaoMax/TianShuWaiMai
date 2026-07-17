@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.chaao.appserver.mapper.wx.OrdersMapper">
+
+    <!-- 插入订单 -->
+    <insert id="insert" parameterType="entity.wx.Orders" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO orders (
+        id,number, status, user_id,
+        address_book_id, consignee,phone,address,
+        amount,pay_amount,
+        pay_method,
+        order_time,delivery_time,
+        remark
+        ) VALUES (
+        #{id},#{number}, #{status}, #{userId},
+        #{addressBookId}, #{consignee},#{phone},#{address},
+        #{amount},#{payAmount},
+        #{payMethod},
+        #{orderTime},  #{deliveryTime},
+        #{remark}
+        )
+    </insert>
+
+    <!-- 根据ID查询 -->
+    <select id="getById" resultType="entity.wx.Orders">
+        SELECT * FROM orders WHERE id = #{id}
+    </select>
+
+</mapper>
