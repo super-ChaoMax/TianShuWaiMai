@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chaao.appserver.mapper.wx.PayLogMapper">
+
+
+<!--    &lt;!&ndash; 根据用户id查最后一条订单id &ndash;&gt;-->
+<!--    <select id="getLastOrderIdByUserId" resultType="java.lang.Long">-->
+<!--        SELECT id-->
+<!--        FROM orders-->
+<!--        WHERE user_id = #{userId}-->
+<!--        ORDER BY id DESC-->
+<!--        LIMIT 1-->
+<!--    </select>-->
+
+
+
+    <select id="getLastOrderInfoByUserId" resultType="entity.wx.Orders">
+        SELECT id,amount
+        FROM orders
+        WHERE user_id = #{userId}
+        ORDER BY id DESC
+        LIMIT 1
+    </select>
+
+    <insert id="insertPayLog">
+        INSERT INTO pay_log
+        (order_no,out_trade_no,refund_no,amount,pay_channel,log_type,status,result_content,create_time)
+        VALUES
+        (#{log.orderNo},#{log.outTradeNo},#{log.refundNo},#{log.amount},
+        #{log.payChannel},#{log.logType},#{log.status},#{log.resultContent},#{log.createTime})
+    </insert>
+
+
+
+</mapper>

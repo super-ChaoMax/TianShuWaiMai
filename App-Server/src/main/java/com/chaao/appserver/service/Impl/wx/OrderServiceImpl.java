@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vo.wx.OrderVO;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -132,7 +133,7 @@ public class OrderServiceImpl implements OrderService {
         orderMapper.insert(orders);
 
 
-// 5. 订单详情表插入
+// 5. 存储好订单详情快照表插入
 
         //查询出购物车数据
         //查出当前购物车的数据
@@ -148,6 +149,11 @@ public class OrderServiceImpl implements OrderService {
 
             // 1. 拷贝同名属性（如 name, image, dishId, number, amount 等）
             BeanUtils.copyProperties(cart, orderDetail);
+
+            //这里修改一下金额要乘上数量
+            orderDetail.setAmount(cart.getAmount().multiply(BigDecimal.valueOf(cart.getNumber())));
+
+
 
             // 2. 【核心修复】手动将 id 置为 null，防止购物车主键污染订单明细主键
             orderDetail.setId(XueHuaiID.generateUserId());
@@ -181,4 +187,5 @@ public class OrderServiceImpl implements OrderService {
         BeanUtils.copyProperties(orders, orderVO);
         return orderVO;
     }
+
 }

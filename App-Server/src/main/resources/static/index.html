@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模拟支付确认</title>
+    <style>
+        * {margin: 0; padding: 0; box-sizing: border-box;}
+        body {padding: 40px 20px; text-align: center; font-size: 18px;}
+        .box {margin-top: 50px;}
+        button {
+            padding: 14px 40px;
+            background: #07c160;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        .price{
+            color:#f53f3f;
+            font-size:22px;
+            margin:15px 0;
+        }
+    </style>
+</head>
+<body>
+<div class="box">
+    <p>模拟订单支付</p>
+    <p style="margin:20px 0" id="orderText"></p>
+    <p class="price" id="amountText"></p>
+    <button id="payBtn">点击确认支付</button>
+    <p style="margin-top:30px;color:#999">操作完成后返回原页面查看结果</p>
+</div>
+
+<script>
+    function getUrlParam(name) {
+        return new URLSearchParams(location.search).get(name)
+    }
+    const userId = getUrlParam('userId');
+    let orderId = '';
+    let payAmount = '';
+
+
+// 开启心跳
+function startHeartBeat() {
+    heartTimer = setInterval(() => {
+        if (orderId) {
+            fetch(`/wx/pay/heart?orderId=${orderId}`)
+        }
+    }, 2000)
+}
+
+// 关闭心跳
+function stopHeartBeat() {
+    if(heartTimer){
+        clearInterval(heartTimer)
+    }
+}
+
+
+
+    window.onload = async function(){
+        if(!userId) return;
+        try{
+            let res1 = await fetch(`/wx/pay/query?userId=${userId}`)
+            let json1 = await res1.json();
+            let order = json1.data;
+            orderId = order.id;
+            payAmount = order.amount;
+
+            document.getElementById('orderText').innerText = `订单号：${orderId}`;
+            document.getElementById('amountText').innerText = `应付金额：¥${payAmount}`;
+
+            // 推送扫码通知小程序
+            await fetch(`/wx/pay/notify?orderId=${orderId}`);
+        }catch(e){
+            console.error(e)
+        }
+
+        startHeartBeat();
+
+
+    }
+
+    // 确认支付
+    document.getElementById('payBtn').onclick = async function(){
+        if(!orderId) return;
+        this.disabled = true;
+        this.innerText = "处理中...";
+        let res = await fetch(`/api/pay/callback?orderId=${orderId}`);
+        if(res.ok){
+            alert("模拟支付成功，请返回小程序查看");
+        }
+        this.disabled = false;
+        this.innerText = "点击确认支付";
+
+        stopHeartBeat();
+    }
+
+    // 稳定版：页面关闭/返回/退出 触发取消支付
+    window.addEventListener('unload', function(){
+        if(orderId){
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', `/wx/pay/close?orderId=${orderId}`, false);
+            xhr.send();
+        }
+    })
+
+ let heartTimer = null;
+
+
+
+</script>
+</body>
+</html>

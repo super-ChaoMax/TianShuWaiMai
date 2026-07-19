@@ -89,6 +89,8 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/admin/login",
                                 "/wx/login",
+                                "/index.html",
+                                "/ws/order/**",
 //                                "/wx/update/profile",
 //                                "/wx/get/phone",
 
@@ -98,7 +100,8 @@ public class SecurityConfig {
 //                                "/wx/dish/**",        // 放行所有菜品相关接口（推荐）
                                 "/wx/shoppingCart/**",// 放行购物车接口（对应你之前的另一个报错）
 //                                "/wx/category/**",    // 放行分类接口
-
+                                "/admin/employee/test",
+                                "/wx/pay/**",               //支付接口测试
 
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**"

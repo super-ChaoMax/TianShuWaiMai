@@ -70,4 +70,11 @@ public class EmployeeController {
         return adminEmployeeService.selectEmployeeById(id);
     }
 
+
+    //测试端口
+    @GetMapping("/test")
+    public String test() {
+        return "hello";
+    }
+
 }

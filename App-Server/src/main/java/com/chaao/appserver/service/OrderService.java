@@ -5,7 +5,9 @@ import vo.wx.OrderVO;
 
 public interface OrderService {
 
-    //submitOrder
+    //submitOrder（提交订单）
     OrderVO submitOrder(OrderSubmitDTO orderSubmitDTO);
+
+
 
 }
