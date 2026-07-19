@@ -39,9 +39,15 @@ public class PayController {
     /**
      *    通知小程序用户已经扫码了
      *    扫码的浏览器调用这个接口 这个接口里面用websocket 给小程序发送消息
+     * 【新增逻辑】扫码成功后修改当前订单心跳超时时间为5秒
      */
     @GetMapping("/notify")
     public Result notifyPay(@RequestParam String orderId){
+        log.info("用户扫码成功，将订单心跳超时由默认20秒改为5秒");
+        //【新增】扫码完成，将订单心跳超时由默认20秒改为5秒
+        OrderWebSocketServer.setHeartTimeout(orderId,5*1000);
+        // 2. 立刻刷新活跃时间，重置计时起点（防止刚改就超时）
+        OrderWebSocketServer.refreshActive(orderId);
         String jsonMsg = "{\"type\":\"scan\",\"msg\":\"用户已扫码，请完成确认支付\"}";
         OrderWebSocketServer.sendMsg(orderId, jsonMsg);
         return Result.success("推送成功");
@@ -55,6 +61,9 @@ public class PayController {
     @GetMapping("/close")
     public Result closePay(@RequestParam String orderId){
         log.info("用户主动退出支付");
+        // 加这一行！！！扫码瞬间强制刷新活跃时间，清零计时
+        OrderWebSocketServer.refreshActive(orderId);
+
         String jsonMsg = "{\"type\":\"close\",\"msg\":\"用户主动退出支付，已取消本次订单支付\"}";
         OrderWebSocketServer.sendMsg(orderId, jsonMsg);
         return Result.success("推送成功");
@@ -66,6 +75,7 @@ public class PayController {
      */
     @GetMapping("/heart")
     public Result heartBeat(@RequestParam String orderId){
+        log.info("用户刷新在线状态");
         OrderWebSocketServer.refreshActive(orderId);
         return Result.success();
     }
@@ -79,11 +89,11 @@ public class PayController {
         return orderPayService.createOrderPay(payOrderDTO);
     }
 
-    /**
-     * 订单退款接口
-     */
-    @PostMapping("/refund")
-    public PayRespVO orderRefund(@RequestBody RefundDTO refundDTO){
-        return orderPayService.orderRefund(refundDTO);
-    }
+//    /**
+//     * 订单退款接口
+//     */
+//    @PostMapping("/refund")
+//    public PayRespVO orderRefund(@RequestBody RefundDTO refundDTO){
+//        return orderPayService.orderRefund(orderRefundDTO);
+//    }
 }
