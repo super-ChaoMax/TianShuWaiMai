@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
 @ServerEndpoint("/ws/order/{orderId}")
@@ -27,6 +28,10 @@ public class OrderWebSocketServer {
     //【新增】存放每个订单独立心跳超时时间 未扫码默认20秒
     public static final Map<String,Long> orderTimeoutMap = new ConcurrentHashMap<>();
 
+    // 新增：活跃连接计数器
+    public static final AtomicInteger activeConnectionCount = new AtomicInteger(0);
+
+
     // 小程序建立连接时触发，携带订单id
     @OnOpen
     public void onOpen(@PathParam("orderId") String orderId, Session session) {
@@ -35,6 +40,10 @@ public class OrderWebSocketServer {
         activeTimeMap.put(orderId, System.currentTimeMillis());
         //【新增】新订单默认设置20秒心跳超时
         orderTimeoutMap.putIfAbsent(orderId,20*1000L);
+
+        // 连接成功，计数器+1
+        activeConnectionCount.incrementAndGet();
+
         System.out.println("订单" + orderId + "小程序已连接");
     }
 
@@ -61,20 +70,17 @@ public class OrderWebSocketServer {
     }
 
     // 小程序关闭页面断开连接
+// 小程序关闭页面断开连接
+// 小程序关闭页面断开连接
     @OnClose
     public void onClose(@PathParam("orderId") String orderId) {
         orderSessionMap.remove(orderId);
-        // ========== 【原有】断开连接移除活跃记录，并推送取消支付消息 ==========
+        // 用户手动关页面，直接清空计时，不再走超时
         activeTimeMap.remove(orderId);
-        // 直接把activeTimeMap里这条订单删掉了
-        //👉 定时任务遍历直接找不到这条订单，自然永远不会执行超时判断！
-
-        //取消 WS 断开自动删超时数据，只靠心跳定时判超时
-
-        //【新增】移除订单超时配置
-//        orderTimeoutMap.remove(orderId);
-//        String closeJson = "{\"type\":\"close\",\"msg\":\"小程序端断开连接，取消支付\"}";
-//        sendMsg(orderId,closeJson);
+        orderTimeoutMap.remove(orderId);
+        // 手动断连 计数-1
+        activeConnectionCount.decrementAndGet();
+        System.out.println("订单" + orderId + "已断开，当前活跃连接数：" + activeConnectionCount.get());
     }
 
     @OnMessage
