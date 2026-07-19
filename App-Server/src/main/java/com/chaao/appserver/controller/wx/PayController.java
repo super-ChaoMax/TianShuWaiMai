@@ -86,6 +86,9 @@ public class PayController {
      */
     @PostMapping("/create")
     public PayRespVO createPay(@RequestBody PayOrderDTO payOrderDTO){
+        log.info("用户发起支付");
+        String jsonMsg = "{\"type\":\"paySuccess\",\"msg\":\"用户主动退出支付，已取消本次订单支付\"}";
+        OrderWebSocketServer.sendMsg(payOrderDTO.getOrderNo(), jsonMsg);
         return orderPayService.createOrderPay(payOrderDTO);
     }
 

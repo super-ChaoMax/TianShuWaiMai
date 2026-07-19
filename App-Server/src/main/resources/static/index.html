@@ -87,14 +87,39 @@ document.getElementById('payBtn').onclick = async function(){
     if(!orderId) return;
     this.disabled = true;
     this.innerText = "处理中...";
-    let res = await fetch(`/api/pay/callback?orderId=${orderId}`);
-    if(res.ok){
-        alert("模拟支付成功，请返回小程序查看");
+
+    // 组装和后端DTO一致的参数
+    let params = {
+        orderNo: orderId,
+        amount: payAmount,       // 后端字段是 amount 不是 payAmount
+        payChannel: "MOCK"
+    };
+
+    try {
+        // 发起POST JSON请求
+        let res = await fetch("/wx/pay/create", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(params)
+        });
+        let data = await res.json();
+        if(data.payStatus === "CREATE" || data.payStatus === "SUCCESS"){
+            alert("支付成功，请返回小程序查看");
+        }
+    } catch (e) {
+        alert("支付请求失败");
     }
+
     this.disabled = false;
     this.innerText = "点击确认支付";
     stopHeartBeat();
 }
+
+
+
+
 
 // 页面关闭触发取消支付
 window.addEventListener('unload', function(){

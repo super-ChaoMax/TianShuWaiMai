@@ -1,8 +1,11 @@
 package com.chaao.appserver.task;
 
 import com.chaao.appserver.service.Impl.wx.OrderWebSocketServer;
+import jakarta.websocket.Session;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import java.io.IOException;
 
 @Component
 public class PayHeartTimeoutTask {
@@ -28,13 +31,21 @@ public class PayHeartTimeoutTask {
                 String timeoutMsg = "{\"type\":\"close\",\"msg\":\"长时间未操作，自动取消支付\"}";
                 OrderWebSocketServer.sendMsg(orderId, timeoutMsg);
 
+                // 拿到会话
+                Session session = OrderWebSocketServer.orderSessionMap.get(orderId);
+                if(session != null && session.isOpen()){
+                    try {
+                        // 主动关闭连接 → 自动触发onClose → 自动减计数器
+                        session.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                // 清理缓存数据
                 iterator.remove();
                 OrderWebSocketServer.orderTimeoutMap.remove(orderId);
                 OrderWebSocketServer.orderSessionMap.remove(orderId);
-
-                // ====================== 补上这行！！！ ======================
-                // 订单超时失效，连接计数必须减1
-                OrderWebSocketServer.activeConnectionCount.decrementAndGet();
 
                 System.out.println("订单：" + orderId + " 支付超时自动取消");
             }

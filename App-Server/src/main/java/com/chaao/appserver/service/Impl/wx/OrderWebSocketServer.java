@@ -36,14 +36,9 @@ public class OrderWebSocketServer {
     @OnOpen
     public void onOpen(@PathParam("orderId") String orderId, Session session) {
         orderSessionMap.put(orderId, session);
-        // ========== 【原有】建立连接时初始化当前订单活跃时间 ==========
         activeTimeMap.put(orderId, System.currentTimeMillis());
-        //【新增】新订单默认设置20秒心跳超时
         orderTimeoutMap.putIfAbsent(orderId,20*1000L);
-
-        // 连接成功，计数器+1
         activeConnectionCount.incrementAndGet();
-
         System.out.println("订单" + orderId + "小程序已连接");
     }
 
@@ -75,10 +70,9 @@ public class OrderWebSocketServer {
     @OnClose
     public void onClose(@PathParam("orderId") String orderId) {
         orderSessionMap.remove(orderId);
-        // 用户手动关页面，直接清空计时，不再走超时
         activeTimeMap.remove(orderId);
         orderTimeoutMap.remove(orderId);
-        // 手动断连 计数-1
+        // 唯一合法减计数入口
         activeConnectionCount.decrementAndGet();
         System.out.println("订单" + orderId + "已断开，当前活跃连接数：" + activeConnectionCount.get());
     }
