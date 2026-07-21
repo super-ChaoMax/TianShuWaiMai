@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chaao.appserver.mapper.admin.category.AdminDishMapper">
+
+    <select id="selectDishPage" resultType="entity.admin.category.Dish">
+        SELECT * FROM dish
+        WHERE deleted=0
+        <if test="dto.categoryId != null">
+            AND category_id = #{dto.categoryId}
+        </if>
+        <if test="dto.name != null and dto.name != ''">
+            AND name LIKE CONCAT('%',#{dto.name},'%')
+        </if>
+        ORDER BY create_time DESC
+        LIMIT #{(dto.page-1)*dto.pageSize},#{dto.pageSize}
+    </select>
+
+    <select id="selectDishCount" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM dish
+        WHERE deleted=0
+        <if test="dto.categoryId != null">
+            AND category_id = #{dto.categoryId}
+        </if>
+        <if test="dto.name != null and dto.name != ''">
+            AND name LIKE CONCAT('%',#{dto.name},'%')
+        </if>
+    </select>
+
+    <insert id="insertDish">
+        INSERT INTO dish
+        (id,name,category_id,price,image,description,status,flavor_json,create_time,update_time,version,deleted)
+        VALUES
+        (#{id},#{name},#{categoryId},#{price},#{image},#{description},#{status},#{flavorJson},
+        #{createTime},#{updateTime},1,0)
+    </insert>
+
+    <update id="updateDish">
+        UPDATE dish SET
+        name=#{name},category_id=#{categoryId},price=#{price},image=#{image},
+        description=#{description},status=#{status},flavor_json=#{flavorJson},
+        update_time=#{updateTime}
+        WHERE id=#{id} AND deleted=0
+    </update>
+
+    <update id="updateDishByVersion">
+        UPDATE dish SET
+        name=#{name},category_id=#{categoryId},price=#{price},image=#{image},
+        description=#{description},status=#{status},flavor_json=#{flavorJson},
+        update_time=#{updateTime},version=version+1
+        WHERE id=#{id} AND version=#{version} AND deleted=0
+    </update>
+
+    <update id="deleteDish">
+        UPDATE dish SET deleted=1,update_time=NOW() WHERE id=#{id}
+    </update>
+
+    <select id="selectDishById" resultType="entity.admin.category.Dish">
+        SELECT * FROM dish WHERE id=#{id} AND deleted=0
+    </select>
+
+</mapper>
