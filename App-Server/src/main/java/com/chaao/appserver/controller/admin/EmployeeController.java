@@ -17,7 +17,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @Tag(name = "员工接口模块（后台）")
-@RequestMapping("/admin/employee")
+@RequestMapping("/employee")
 public class EmployeeController {
 
     @Autowired

@@ -15,4 +15,24 @@
         </foreach>
     </insert>
 
+
+    <!--    /**-->
+    <!--    * 根据订单id查询订单明细-->
+    <!--    * @param orderId 订单id-->
+    <!--    * @return 订单明细列表-->
+    <!--    */-->
+    <select id="getByOrderId" resultType="entity.wx.OrderDetail">
+        SELECT
+        id,
+        order_id,
+        dish_id,
+        setmeal_id,
+        name,
+        image,
+        number,
+        amount
+        FROM order_detail
+        WHERE order_id = #{orderId}
+    </select>
+
 </mapper>

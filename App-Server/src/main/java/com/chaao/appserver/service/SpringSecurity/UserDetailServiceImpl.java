@@ -5,6 +5,7 @@ import com.chaao.appserver.mapper.WxUserLoginMapper;
 import entity.rbac.SysRole;
 import entity.rbac.SysUser;
 import entity.wx.WxUser;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class UserDetailServiceImpl implements UserDetailsService {
 //问题 1：finally 提前清空 ThreadLocal 重大 BUG
 //运行
@@ -39,6 +41,8 @@ public class UserDetailServiceImpl implements UserDetailsService {
     // 本地线程存放登录类型，区分走哪个表
     public static final ThreadLocal<Integer> LOGIN_TYPE = new ThreadLocal<>();
 
+
+
     @Override
     public UserDetails loadUserByUsername(String username) {
         Integer type = LOGIN_TYPE.get();
@@ -48,7 +52,12 @@ public class UserDetailServiceImpl implements UserDetailsService {
             if (Integer.valueOf(1).equals(type)) {
                 SysUser sysUser = sysUserMapper.findByUsername(username);
                 if (sysUser == null) {
+                    log.error("管理员账号不存在");
                     throw new UsernameNotFoundException("管理员账号不存在");
+
+                }
+                if ( sysUser.getStatus() == 0){
+                    throw new UsernameNotFoundException("管理员账号被禁用");
                 }
                 // 查询角色 + 权限
                 List<SysRole> roles = sysUserMapper.findRolesByUserId(sysUser.getId());

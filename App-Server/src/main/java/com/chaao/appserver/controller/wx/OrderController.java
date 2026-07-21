@@ -2,14 +2,18 @@ package com.chaao.appserver.controller.wx;
 
 
 import com.chaao.appserver.service.OrderService;
+import com.chaao.appserver.service.OrderStatusLogService;
 import com.chaao.appserver.service.SpringSecurity.LoginUser;
 import com.chaao.appserver.util.SecurityUtils;
+import dto.wx.OrderPageQueryDTO;
 import dto.wx.OrderSubmitDTO;
 import entity.wx.WxUser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import vo.PageResult;
 import vo.Result;
+import vo.wx.OrderUserVO;
 import vo.wx.OrderVO;
 
 /**
@@ -22,6 +26,10 @@ public class OrderController {
 
     @Autowired
     private OrderService orderService;
+
+
+    @Autowired
+    private OrderStatusLogService orderStatusLogService;
 
     /**
      * 用户下单接口
@@ -45,11 +53,51 @@ public class OrderController {
             // 2. 调用 Service 层执行复杂的下单逻辑（含事务）
             // 这里会处理库存扣减、金额计算、餐具信息保存等
             OrderVO orderVO = orderService.submitOrder(orderSubmitDTO);
+            log.info("插入订单返回：{}", orderVO);
+
+            //同时也写入订单日志表
+            log.info("订单日志写入");
+            // 3.写入状态流水
+            orderStatusLogService.saveStatusLog(
+                    orderVO.getId(),
+                    1,
+                    1,
+                    1,          // 4=系统操作
+                    userId,
+                    "用户提交了订单"
+            );
+
 
             return Result.success(orderVO);
         }
         throw new Exception("非微信用户无法清空购物车");
 
+
+    }
+
+
+
+
+    /**
+     * 分页查询我的历史订单
+     * 前端请求地址：GET /wx/order/page
+     */
+    @GetMapping("/page")
+    public Result<PageResult<OrderUserVO>> orderPage(OrderPageQueryDTO dto) throws Exception {
+        log.info("用户查询，参数为：{}", dto);
+
+        LoginUser loginUser = SecurityUtils.getCurrentUser();
+
+        // 强制转换为微信用户逻辑
+        if (loginUser != null && loginUser.isWxUser()) {
+            WxUser wxUser = loginUser.getWxUser();
+            Long userId = wxUser.getId(); // 拿到微信用户的数据库主键
+
+
+            PageResult<OrderUserVO> pageResult = orderService.pageList(userId,dto);
+            return Result.success(pageResult);
+        }
+        throw new Exception("非微信用户无法清空购物车");
 
     }
 

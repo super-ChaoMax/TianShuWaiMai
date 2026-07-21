@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vo.Result;
+import vo.admin.AdminVO;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,30 +41,59 @@ public class LoginController {
     @Autowired
     private WxUserService wxUserService;
 
+
+
+
     // 后台管理员登录
     @PostMapping("/admin/login")
     @Operation(summary ="管理员账号密码登录")
-    public Map<String,Object> adminLogin(@RequestBody  @ApiParam("登录参数") LoginDTO dto){
+    public Result adminLogin(@RequestBody  @ApiParam("登录参数") LoginDTO dto){
+    /*
+你调用 authenticate(账号+明文密码)
+SpringSecurity 内部自动去找项目中唯一实现 UserDetailsService 的类
+自动执行：userDetailsService.loadUserByUsername(前端用户名)
+走到你写的方法里：根据用户名查数据库用户、拿到加密密码
+框架拿到你返回的 LoginUser
+框架自动拿全局 PasswordEncoder
+把前端明文密码加密，和你返回的数据库密文对比
+匹配成功 = 认证通过
+匹配失败 = 直接抛 用户名或密码错误
+
+     */
+
+
+
         try {
             // 标记管理员登录类型
             UserDetailServiceImpl.LOGIN_TYPE.set(1);
+
             Authentication auth = authenticationManager.authenticate(
+                    // 封装用户名和密码
+                    //并且Security 自动调用 userDetailsService.loadUserByUsername(用户名)
                     new UsernamePasswordAuthenticationToken(dto.getUsername(), dto.getPassword())
             );
+
+
             LoginUser loginUser = (LoginUser) auth.getPrincipal();
+            log.info("管理员登录成功：{}", loginUser);
             // 生成JWT
             String token = jwtUtil.generateLoginToken(
                     loginUser.getUsername(),
                     loginUser.getSysUser().getId(),
                     loginUser.getUserType()
             );
-            Map<String,Object> res = new HashMap<>();
-            res.put("code",200);
-            res.put("msg","登录成功");
-            res.put("token",token);
-            res.put("userId",loginUser.getSysUser().getId());
-            res.put("userType",1);
-            return res;
+//            Map<String,Object> res = new HashMap<>();
+//            res.put("code",200);
+//            res.put("msg","登录成功");
+//            res.put("token",token);
+//            res.put("userId",loginUser.getSysUser().getId());
+//            res.put("userType",1);
+            AdminVO adminVO = new AdminVO();
+            adminVO.setId(loginUser.getSysUser().getId());
+            adminVO.setUsername(loginUser.getUsername());
+            adminVO.setName(loginUser.getSysUser().getName());
+            adminVO.setToken(token);
+            return Result.success(1,"登录成功", adminVO);
         }finally {
             // 必须清空，防止污染
             UserDetailServiceImpl.LOGIN_TYPE.remove();

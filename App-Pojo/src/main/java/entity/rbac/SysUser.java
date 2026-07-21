@@ -40,10 +40,17 @@ public class SysUser implements Serializable {
      */
     private String username;
 
+
     /**
      * 密码哈希值（非明文存储加盐）
      */
     private String passwordHash;
+
+    /**
+     * 昵称
+     */
+    private String name;
+
 
     /**
      * 手机号（不能为空）
@@ -54,7 +61,7 @@ public class SysUser implements Serializable {
      * 性别
      * 1-男, 2-女, null-未知
      */
-    private Integer gender;
+    private Integer sex;
 
     /**
      * 员工身份证
@@ -91,12 +98,12 @@ public class SysUser implements Serializable {
     /**
      * 创建时间
      */
-    private LocalDateTime createdAt;
+    private LocalDateTime createTime;
 
     /**
      * 更新时间
      */
-    private LocalDateTime updatedAt;
+    private LocalDateTime updateTime;
 
 
 

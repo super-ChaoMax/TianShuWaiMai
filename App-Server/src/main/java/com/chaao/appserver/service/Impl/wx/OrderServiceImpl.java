@@ -1,6 +1,8 @@
 package com.chaao.appserver.service.Impl.wx;
 
 
+import cn.hutool.core.bean.BeanUtil;
+import com.chaao.appserver.mapper.OrderStatusLogMapper;
 import com.chaao.appserver.mapper.wx.AddressBookMapper;
 import com.chaao.appserver.mapper.wx.OrderDetailMapper;
 import com.chaao.appserver.mapper.wx.OrdersMapper;
@@ -9,6 +11,7 @@ import com.chaao.appserver.service.AddressBookService;
 import com.chaao.appserver.service.OrderService;
 import com.yourcompany.common.constant.OrdersConstant;
 import com.yourcompany.common.util.XueHuaiID;
+import dto.wx.OrderPageQueryDTO;
 import dto.wx.OrderSubmitDTO;
 import entity.wx.AddressBook;
 import entity.wx.OrderDetail;
@@ -19,6 +22,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vo.PageResult;
+import vo.wx.OrderDetailVO;
+import vo.wx.OrderUserVO;
 import vo.wx.OrderVO;
 
 import java.math.BigDecimal;
@@ -27,6 +33,9 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.chaao.appserver.util.SecurityUtils.getCurrentUserId;
 
 @Slf4j
 @Service
@@ -46,6 +55,7 @@ public class OrderServiceImpl implements OrderService {
     //购物车
     @Autowired
     private ShoppingCartMapper shoppingCartMapper;
+
 
 
     /**
@@ -180,12 +190,53 @@ public class OrderServiceImpl implements OrderService {
 
 
 
+
         orderDetailMapper.insertBatch(orderDetailList);
 
         // 5. 返回结果 VO (此处简化处理，实际应查询详情返回)
         OrderVO orderVO = new OrderVO();
-        BeanUtils.copyProperties(orders, orderVO);
+        orderVO.setId(orders.getId());
+        orderVO.setOrderNumber(orders.getNumber());
+        orderVO.setOrderAmount(String.valueOf(orders.getAmount()));
+        orderVO.setOrderTime(orders.getOrderTime().toString());
         return orderVO;
+    }
+
+    //修改订单状态
+    @Override
+    public void updateStatus(Long orderId, Integer status) {
+
+        orderMapper.updateStatus(orderId, status);
+
+    }
+
+
+
+    //订单列表
+    @Override
+    public PageResult<OrderUserVO> pageList(Long userId,OrderPageQueryDTO dto) {
+        int page = dto.getPage();
+        int pageSize = dto.getPageSize();
+        int offset = (page - 1) * pageSize;
+
+
+        // 查询订单分页数据
+        List<Orders> orderList = orderMapper.selectUserOrderPage(userId, dto.getStatus(), offset, pageSize);
+        // 查询总条数
+        Long total = orderMapper.countUserOrder(userId, dto.getStatus());
+
+        // 组装返回VO
+        List<OrderUserVO> voList = orderList.stream().map(order -> {
+            OrderUserVO vo = BeanUtil.copyProperties(order, OrderUserVO.class);
+            // 查询当前订单所有商品明细
+            List<OrderDetail> detailList = orderDetailMapper.getByOrderId(order.getId());
+            List<OrderDetailVO> detailVOList = BeanUtil.copyToList(detailList, OrderDetailVO.class);
+            vo.setOrderDetails(detailVOList);
+            return vo;
+        }).collect(Collectors.toList());
+
+        return new PageResult<>(total, voList);
+
     }
 
 }

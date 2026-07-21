@@ -79,7 +79,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             LoginUser loginUser = null;
             if (1 == userType) {
                 // 后台管理员：通过 username 加载用户信息
-                String username = claims.get("username").toString();
+//                String username = claims.get("username").toString();
+                String username = claims.getSubject(); // <-- 改成这行
                 UserDetailServiceImpl.LOGIN_TYPE.set(1); // 仅在必要时设置 ThreadLocal
                 loginUser = (LoginUser) userDetailService.loadUserByUsername(username);
             } else if (2 == userType) {

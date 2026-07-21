@@ -98,10 +98,10 @@ public class SecurityConfig {
                                 // 如果不放开，且用户未登录（或 Token 无效），就会报 403
 //                                "/wx/dish/list",      // 精确匹配当前报错接口
 //                                "/wx/dish/**",        // 放行所有菜品相关接口（推荐）
-                                "/wx/shoppingCart/**",// 放行购物车接口（对应你之前的另一个报错）
+//                                "/wx/shoppingCart/**",// 放行购物车接口（对应你之前的另一个报错）
 //                                "/wx/category/**",    // 放行分类接口
-                                "/admin/employee/test",
-                                "/wx/pay/**",               //支付接口测试
+//                                "/admin/employee/**",
+//                                "/wx/pay/**",               //支付接口测试
 
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**"

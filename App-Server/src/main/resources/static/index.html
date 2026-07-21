@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>模拟支付确认</title>
+    <title>支付确认</title>
     <style>
         * {margin: 0; padding: 0; box-sizing: border-box;}
         body {padding: 40px 20px; text-align: center; font-size: 18px;}
@@ -21,15 +21,26 @@
             font-size:22px;
             margin:15px 0;
         }
+        /* 新增支付成功样式 */
+        .success-icon{
+            font-size:60px;
+            color:#07c160;
+            margin:20px 0;
+        }
+        .success-text{
+            font-size:24px;
+            color:#333;
+            margin-bottom:15px;
+        }
     </style>
 </head>
 <body>
-<div class="box">
-    <p>模拟订单支付</p>
+<div class="box" id="payBox">
+    <p>订单支付</p>
     <p style="margin:20px 0" id="orderText"></p>
     <p class="price" id="amountText"></p>
     <button id="payBtn">点击确认支付</button>
-    <p style="margin-top:30px;color:#999">操作完成后返回原页面查看结果</p>
+    <p style="margin-top:30px;color:#999" id="tipText">操作完成后返回原页面查看结果</p>
 </div>
 
 <script>
@@ -40,6 +51,9 @@
     let orderId = '';
     let payAmount = '';
     let heartTimer = null;
+    // 新增防抖与状态变量
+    let payLock = false;
+    let debounceTimer = null;
 
 
 // 网页心跳：2秒执行一次
@@ -84,6 +98,10 @@ window.onload = async function(){
 
 // 确认支付
 document.getElementById('payBtn').onclick = async function(){
+    // 防抖+已支付直接拦截（不改动原有业务结构）
+    if(payLock || debounceTimer) return;
+    debounceTimer = setTimeout(()=>{debounceTimer=null},1500);
+
     if(!orderId) return;
     this.disabled = true;
     this.innerText = "处理中...";
@@ -92,7 +110,8 @@ document.getElementById('payBtn').onclick = async function(){
     let params = {
         orderNo: orderId,
         amount: payAmount,       // 后端字段是 amount 不是 payAmount
-        payChannel: "MOCK"
+        payChannel: "MOCK",
+        userId: userId
     };
 
     try {
@@ -107,6 +126,18 @@ document.getElementById('payBtn').onclick = async function(){
         let data = await res.json();
         if(data.payStatus === "CREATE" || data.payStatus === "SUCCESS"){
             alert("支付成功，请返回小程序查看");
+            // 支付成功锁定按钮 + 原地切换成支付成功页面样式
+            payLock = true;
+            stopHeartBeat();
+            const box = document.getElementById('payBox');
+            // 替换为成功页面布局
+            box.innerHTML = `
+                <div class="success-icon">✓</div>
+                <p class="success-text">支付成功</p>
+                <p>订单号：${orderId}</p>
+                <p style="color:#666;margin-top:10px">请返回小程序查看订单状态</p>
+            `;
+            return;
         }
     } catch (e) {
         alert("支付请求失败");

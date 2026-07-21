@@ -81,6 +81,13 @@ public class Result<T> implements Serializable {
     }
 
     /**
+     * 操作成功（状态码 + 自定义消息 + 数据）
+     */
+    public static <T> Result<T> success(int code, String message, T data) {
+        return new Result<>(code, message, data);
+    }
+
+    /**
      * 操作失败（默认500）
      */
     public static <T> Result<T> error(String message) {

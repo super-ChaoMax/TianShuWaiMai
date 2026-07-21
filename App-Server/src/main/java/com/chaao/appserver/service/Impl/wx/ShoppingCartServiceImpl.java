@@ -148,6 +148,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     }
 
+    // 清空
     @Override
     public void deleteByUserId(Long userId) {
         shoppingCartMapper.deleteByUserId(userId);

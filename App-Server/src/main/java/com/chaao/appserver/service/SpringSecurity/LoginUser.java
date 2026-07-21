@@ -3,6 +3,7 @@ package com.chaao.appserver.service.SpringSecurity;
 import entity.rbac.SysUser;
 import entity.wx.WxUser;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -14,6 +15,7 @@ import java.util.List;
  * 全端统一登录用户包装类
  * 持有真实业务实体：管理员SysUser / 微信用户WxUser
  */
+@Slf4j
 @Data
 public class LoginUser implements UserDetails {
 
@@ -43,6 +45,9 @@ public class LoginUser implements UserDetails {
      * 构建管理员登录用户
      */
     public static LoginUser buildAdmin(SysUser sysUser, List<GrantedAuthority> auths) {
+        log.info("管理员登录开始构建管理员登录用户：");
+        log.info("查到的管理员" + sysUser);
+        log.info("权限：" + auths);
         LoginUser loginUser = new LoginUser(sysUser, auths);
         loginUser.setUserType(1);
         return loginUser;
@@ -105,6 +110,7 @@ public class LoginUser implements UserDetails {
     @Override
     public String getPassword() {
         if (isAdmin()) {
+            log.info("获取管理员的密码对比");
             // 改成实体真实密码字段 getPassword()
             return getSysUser().getPasswordHash();
         }

@@ -13,14 +13,14 @@
         amount,pay_amount,
         pay_method,
         order_time,delivery_time,
-        remark
+        remark,tableware_status,tableware_number
         ) VALUES (
         #{id},#{number}, #{status}, #{userId},
         #{addressBookId}, #{consignee},#{phone},#{address},
         #{amount},#{payAmount},
         #{payMethod},
         #{orderTime},  #{deliveryTime},
-        #{remark}
+        #{remark},#{tablewareStatus},#{tablewareNumber}
         )
     </insert>
 
@@ -28,5 +28,33 @@
     <select id="getById" resultType="entity.wx.Orders">
         SELECT * FROM orders WHERE id = #{id}
     </select>
+
+<!--    根据订单id修改订单状态-->
+    <update id="updateStatus">
+        UPDATE orders SET status = #{status} WHERE id = #{orderId}
+    </update>
+
+
+    <select id="selectUserOrderPage" resultType="entity.wx.Orders">
+        SELECT id,status,checkout_time,pay_amount,create_time
+        FROM orders
+        WHERE user_id = #{userId} AND deleted = 0
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+        ORDER BY order_time DESC
+        LIMIT #{offset},#{pageSize}
+    </select>
+
+    <select id="countUserOrder" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM orders
+        WHERE user_id = #{userId} AND deleted = 0
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+    </select>
+
+
 
 </mapper>

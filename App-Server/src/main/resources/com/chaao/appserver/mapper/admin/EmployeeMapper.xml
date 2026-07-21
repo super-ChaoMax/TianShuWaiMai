@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chaao.appserver.mapper.admin.EmployeeMapper">
+
+    <!-- 通用结果映射 -->
+    <resultMap id="EmployeeResultMap" type="entity.admin.Employee">
+        <id column="id" property="id"/>
+        <result column="username" property="username"/>
+        <result column="password" property="password"/>
+        <result column="name" property="name"/>
+        <result column="phone" property="phone"/>
+        <result column="sex" property="sex"/>
+        <result column="id_number" property="idNumber"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="version" property="version"/>
+        <result column="deleted" property="deleted"/>
+    </resultMap>
+
+    <!-- 分页查询 -->
+    <select id="pageQuery" resultMap="EmployeeResultMap">
+        select id,username,password,name,phone,sex,id_number,status,create_time,update_time,version,deleted
+        from employee
+        where deleted = 0
+        <if test="query.name != null and query.name != ''">
+            and name like concat('%',#{query.name},'%')
+        </if>
+        limit #{query.page},#{query.pageSize}
+    </select>
+
+    <!-- 统计总数 -->
+    <select id="countQuery" resultType="java.lang.Long">
+        select count(*) from employee
+        where deleted = 0
+        <if test="query.name != null and query.name != ''">
+            and name like concat('%',#{query.name},'%')
+        </if>
+    </select>
+
+    <!-- 新增员工 -->
+    <insert id="insert">
+        INSERT INTO employee
+        (id,username,password,name,phone,sex,id_number,status,version,deleted)
+        VALUES
+        (#{id},#{username},#{password},#{name},#{phone},#{sex},#{idNumber},#{status},1,0)
+    </insert>
+
+    <!-- 修改员工 -->
+    <update id="update">
+        UPDATE employee
+        <set>
+            <if test="username != null">username=#{username},</if>
+            <if test="password != null">password=#{password},</if>
+            <if test="name != null">name=#{name},</if>
+            <if test="phone != null">phone=#{phone},</if>
+            <if test="sex != null">sex=#{sex},</if>
+            <if test="idNumber != null">id_number=#{idNumber},</if>
+            version = version + 1
+        </set>
+        WHERE id=#{id} and deleted=0 and version=#{version}
+    </update>
+
+    <!-- 根据ID查询 -->
+    <select id="getById" resultMap="EmployeeResultMap">
+        select * from employee where id=#{id} and deleted=0
+    </select>
+
+    <!-- 修改状态 -->
+    <update id="updateStatus">
+        update employee set status=#{status},version=version+1 where id=#{id} and deleted=0
+    </update>
+
+</mapper>

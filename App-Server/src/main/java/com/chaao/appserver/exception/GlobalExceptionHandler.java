@@ -1,6 +1,8 @@
 package com.chaao.appserver.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -31,6 +33,25 @@ public class GlobalExceptionHandler {
                       .collect(Collectors.joining("; "));
         return Result.error(400, "VALIDATION_FAILED", msg);
     }
+
+    //BadCredentialsException 属于 SpringSecurity 内置认证异常，
+    //你全局异常处理器 GlobalExceptionHandler 没有单独捕获这个异常，
+    //走到了兜底未知异常，直接返回 500。
+
+    // 专门捕获 用户名/密码错误
+    @ExceptionHandler(BadCredentialsException.class)
+    public Result<?> handleBadCredentialsException(BadCredentialsException e){
+        log.error("登录账号密码错误：{}",e.getMessage());
+        // 返回你前端能识别的格式
+        return Result.error(400,"用户名或密码错误",null);
+    }
+
+    // 账号不存在
+    public Result<?> handleUsernameNotFoundException(UsernameNotFoundException e){
+        return Result.error(400,e.getMessage(),null);
+        // return new ResultVO(400,e.getMessage(),null);
+    }
+
 
     // 3. 兜底处理所有未知异常
     @ExceptionHandler(Exception.class)
