@@ -86,6 +86,8 @@ public class DishRedisUtil {
         redisTemplate.delete(DishKey);
         // 从分类集合移除商品id
         String categoryKey = String.format(CATEGORY_Dish_KEY, categoryId);
+        redisTemplate.opsForSet().remove(categoryKey, DishId);
+
     }
 
 

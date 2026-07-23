@@ -2,6 +2,7 @@ package com.chaao.appserver.service.Impl.admin.category;
 
 import com.chaao.appserver.mapper.admin.category.AdminCategoryMapper;
 import com.chaao.appserver.service.AdminCategoryService;
+import com.yourcompany.common.util.XueHuaiID;
 import dto.admin.category.CategoryPageQueryDTO;
 import entity.admin.category.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,7 @@ public class AdminCategoryServiceImpl implements AdminCategoryService {
         category.setUpdateTime(LocalDateTime.now());
         category.setCreateUser(1L);
         category.setUpdateUser(1L);
+        category.setId(XueHuaiID.generateUserId());
         adminCategoryMapper.insertCategory(category);
     }
 

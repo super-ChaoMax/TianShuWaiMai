@@ -7,6 +7,7 @@ import com.chaao.appserver.service.Impl.wx.OrderPayService;
 import com.chaao.appserver.service.Impl.wx.OrderServiceImpl;
 import com.chaao.appserver.service.Impl.wx.OrderWebSocketServer;
 import com.chaao.appserver.service.Impl.wx.ShoppingCartServiceImpl;
+import com.chaao.appserver.websocket.admin.WebOrderPushWebSocket;
 import dto.wx.PayOrderDTO;
 import dto.wx.RefundDTO;
 import entity.wx.Orders;
@@ -121,6 +122,12 @@ public class PayController {
                 payOrderDTO.getUserId(),
                 "用户主动发起支付成功"
         );
+
+
+        // 2. 下单完成后 调用WebSocket推送新订单提醒
+        // 参数1：待处理订单数量（可自行查询数据库统计）
+        // 参数2：当前最新生成订单号
+        WebOrderPushWebSocket.pushNewOrderNotice(1,payOrderDTO.getOrderNo());
 
         return orderPayService.createOrderPay(payOrderDTO);
     }

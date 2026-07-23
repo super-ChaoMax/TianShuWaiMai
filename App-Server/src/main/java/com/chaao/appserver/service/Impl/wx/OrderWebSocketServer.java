@@ -77,6 +77,13 @@ public class OrderWebSocketServer {
         System.out.println("订单" + orderId + "已断开，当前活跃连接数：" + activeConnectionCount.get());
     }
 
+    // 自动接收消息，框架异步调用，不用自己开线程
+    //WebSocket 框架（SpringBoot 自带）底层已经封装好异步监听线程
+    //客户端发消息过来 → 框架自动回调 onMessage()
+    //你直接在 onMessage 里写业务就行，不用新建线程轮询接收
     @OnMessage
-    public void onMessage(String message) {}
+    public void onMessage(String msg, Session session) {
+
+
+    }
 }

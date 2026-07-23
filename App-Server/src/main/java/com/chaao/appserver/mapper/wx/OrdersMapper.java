@@ -35,6 +35,10 @@ public interface OrdersMapper {
     Long countUserOrder(@Param("userId") Long userId, @Param("status") Integer status);
 
 
+    // 根据id去查
+    Orders getById(@Param("id") Long id);
+
+
     /**
      * 根据订单号查询订单（用于支付回调或详情展示）
      */

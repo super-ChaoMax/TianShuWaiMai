@@ -38,9 +38,9 @@
 
     <insert id="insertCategory">
         INSERT INTO category
-        (name,type,sort,status,create_time,update_time,create_user,update_user,deleted)
+        (id,name,type,sort,status,create_time,create_user,update_user,deleted)
         VALUES
-        (#{name},#{type},#{sort},#{status},#{createTime},#{updateTime},#{createUser},#{updateUser},0)
+        (#{id},#{name},#{type},#{sort},#{status},#{createTime},#{createUser},#{updateUser},0)
     </insert>
 
     <update id="updateCategory">

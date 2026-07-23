@@ -21,4 +21,8 @@ public interface OrderService {
      */
     PageResult<OrderUserVO> pageList(Long userId, OrderPageQueryDTO dto);
 
+
+    //根据id查订单详细
+
+
 }

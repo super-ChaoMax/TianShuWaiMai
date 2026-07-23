@@ -15,13 +15,19 @@
             border: none;
             border-radius: 6px;
             font-size: 16px;
+            min-width: 160px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        button:disabled{
+            background: #94e0b7;
+            cursor: not-allowed;
         }
         .price{
             color:#f53f3f;
             font-size:22px;
             margin:15px 0;
         }
-        /* 新增支付成功样式 */
         .success-icon{
             font-size:60px;
             color:#07c160;
@@ -31,6 +37,11 @@
             font-size:24px;
             color:#333;
             margin-bottom:15px;
+        }
+        .empty-tip{
+            color:#666;
+            margin-top: 60px;
+            font-size: 16px;
         }
     </style>
 </head>
@@ -44,123 +55,142 @@
 </div>
 
 <script>
+    // 获取URL参数
     function getUrlParam(name) {
-        return new URLSearchParams(location.search).get(name)
+        return new URLSearchParams(location.search).get(name) || '';
     }
+
+    // 金额格式化 保留2位小数
+    function formatMoney(num) {
+        return parseFloat(Number(num) || 0).toFixed(2)
+    }
+
+    // 请求超时封装
+    function fetchWithTimeout(url, options = {}, timeout = 8000) {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), timeout);
+        return fetch(url, { ...options, signal: controller.signal })
+            .finally(() => clearTimeout(timer));
+    }
+
     const userId = getUrlParam('userId');
     let orderId = '';
     let payAmount = '';
     let heartTimer = null;
-    // 新增防抖与状态变量
-    let payLock = false;
-    let debounceTimer = null;
+    let payLock = false; // 支付唯一锁
 
+    // 开启心跳上报
+    function startHeartBeat() {
+        if(heartTimer) return;
+        heartTimer = setInterval(() => {
+            if (!orderId || payLock) {
+                stopHeartBeat()
+                return
+            }
+            fetchWithTimeout(`/wx/pay/heart?orderId=${orderId}`)
+                .catch(err => console.log("心跳上报异常", err))
+        }, 2000)
+    }
 
-// 网页心跳：2秒执行一次
-function startHeartBeat() {
-    heartTimer = setInterval(() => {
-        if (orderId) {
-            fetch(`/wx/pay/heart?orderId=${orderId}`)
-                .catch(err=>console.log("网页心跳上报异常",err))
+    // 关闭心跳
+    function stopHeartBeat() {
+        if(heartTimer){
+            clearInterval(heartTimer)
+            heartTimer = null;
         }
-    }, 2000)
-}
-
-// 关闭心跳
-function stopHeartBeat() {
-    if(heartTimer){
-        clearInterval(heartTimer)
-        heartTimer = null;
     }
-}
 
-window.onload = async function(){
-    if(!userId) return;
-    try{
-        let res1 = await fetch(`/wx/pay/query?userId=${userId}`)
-        let json1 = await res1.json();
-        let order = json1.data;
-        orderId = order.id;
-        payAmount = order.amount;
-
-        document.getElementById('orderText').innerText = `订单号：${orderId}`;
-        document.getElementById('amountText').innerText = `应付金额：¥${payAmount}`;
-
-        // 关键：调用notify，后端自动将该订单心跳超时改为5秒，并推送scan消息给小程序
-        await fetch(`/wx/pay/notify?orderId=${orderId}`);
-
-        // 网页启动2s一次心跳上报
-        startHeartBeat();
-    }catch(e){
-        console.error(e)
-    }
-}
-
-// 确认支付
-document.getElementById('payBtn').onclick = async function(){
-    // 防抖+已支付直接拦截（不改动原有业务结构）
-    if(payLock || debounceTimer) return;
-    debounceTimer = setTimeout(()=>{debounceTimer=null},1500);
-
-    if(!orderId) return;
-    this.disabled = true;
-    this.innerText = "处理中...";
-
-    // 组装和后端DTO一致的参数
-    let params = {
-        orderNo: orderId,
-        amount: payAmount,       // 后端字段是 amount 不是 payAmount
-        payChannel: "MOCK",
-        userId: userId
-    };
-
-    try {
-        // 发起POST JSON请求
-        let res = await fetch("/wx/pay/create", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(params)
-        });
-        let data = await res.json();
-        if(data.payStatus === "CREATE" || data.payStatus === "SUCCESS"){
-            alert("支付成功，请返回小程序查看");
-            // 支付成功锁定按钮 + 原地切换成支付成功页面样式
-            payLock = true;
-            stopHeartBeat();
-            const box = document.getElementById('payBox');
-            // 替换为成功页面布局
-            box.innerHTML = `
-                <div class="success-icon">✓</div>
-                <p class="success-text">支付成功</p>
-                <p>订单号：${orderId}</p>
-                <p style="color:#666;margin-top:10px">请返回小程序查看订单状态</p>
-            `;
+    window.onload = async function(){
+        // 无用户ID直接提示
+        if(!userId) {
+            document.getElementById('payBox').innerHTML = '<p class="empty-tip">缺少用户参数，无法发起支付</p>';
             return;
         }
-    } catch (e) {
-        alert("支付请求失败");
+        try{
+            let res1 = await fetchWithTimeout(`/wx/pay/query?userId=${userId}`)
+            if(!res1.ok) throw new Error("订单查询失败")
+            let json1 = await res1.json();
+            if(json1.code !== 200 || !json1.data){
+                document.getElementById('payBox').innerHTML = '<p class="empty-tip">暂无待支付订单</p>';
+                return
+            }
+            let order = json1.data;
+            orderId = order.id;
+            payAmount = order.amount;
+
+            document.getElementById('orderText').innerText = `订单号：${orderId}`;
+            document.getElementById('amountText').innerText = `应付金额：¥${formatMoney(payAmount)}`;
+
+            // 通知后端修改超时配置
+            await fetchWithTimeout(`/wx/pay/notify?orderId=${orderId}`);
+            startHeartBeat();
+        }catch(e){
+            console.error(e)
+            document.getElementById('payBox').innerHTML = '<p class="empty-tip">订单加载失败，请重试</p>';
+        }
     }
 
-    this.disabled = false;
-    this.innerText = "点击确认支付";
-    stopHeartBeat();
-}
+    // 确认支付点击事件
+    document.getElementById('payBtn').onclick = async function(){
+        if(payLock || !orderId) return;
+        payLock = true;
+        this.disabled = true;
+        this.innerText = "处理中...";
 
+        let params = {
+            orderNo: orderId,
+            amount: payAmount,
+            payChannel: "MOCK",
+            userId: userId
+        };
 
+        try {
+            let res = await fetchWithTimeout("/wx/pay/create", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(params)
+            })
+            if(!res.ok) throw new Error("请求异常")
+            let data = await res.json();
 
+            // 支付成功判定
+            if(data.payStatus === "SUCCESS" || data.payStatus === "CREATE"){
+                stopHeartBeat();
+                const box = document.getElementById('payBox');
+                box.innerHTML = `
+                    <div class="success-icon">✓</div>
+                    <p class="success-text">支付成功</p>
+                    <p>订单号：${orderId}</p>
+                    <p style="color:#666;margin-top:10px">请返回小程序查看订单状态</p>
+                `;
+                return;
+            }else{
+                alert("支付失败，请重新尝试");
+            }
+        } catch (e) {
+            if(e.name === 'AbortError'){
+                alert("请求超时，请检查网络后重试");
+            }else{
+                alert("支付请求异常");
+            }
+        }
 
-
-// 页面关闭触发取消支付
-window.addEventListener('unload', function(){
-    stopHeartBeat();
-    if(orderId){
-        const xhr = new XMLHttpRequest();
-        xhr.open('GET', `/wx/pay/close?orderId=${orderId}`, false);
-        xhr.send();
+        // 失败重置状态
+        payLock = false;
+        this.disabled = false;
+        this.innerText = "点击确认支付";
     }
-})
+
+    // 页面关闭/刷新 优雅关闭订单（替换同步阻塞请求）
+    window.addEventListener('beforeunload', function(){
+        stopHeartBeat();
+        if(orderId){
+            // 浏览器稳定后台上报，不阻塞页面关闭
+            navigator.sendBeacon(`/wx/pay/close?orderId=${orderId}`);
+        }
+    })
 </script>
 </body>
 </html>

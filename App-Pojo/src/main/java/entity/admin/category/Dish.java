@@ -9,7 +9,7 @@ public class Dish {
     private Long id;
     private String name;
     private Long categoryId;
-    private BigDecimal price;
+    private Double price;
     private String image;
     private String description;
     private Integer status;

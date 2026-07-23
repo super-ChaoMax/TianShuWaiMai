@@ -91,6 +91,7 @@ public class SecurityConfig {
                                 "/wx/login",
                                 "/index.html",
                                 "/ws/order/**",
+                                "/ws/admin/order/**",
 //                                "/wx/update/profile",
 //                                "/wx/get/phone",
 
@@ -101,7 +102,7 @@ public class SecurityConfig {
 //                                "/wx/shoppingCart/**",// 放行购物车接口（对应你之前的另一个报错）
 //                                "/wx/category/**",    // 放行分类接口
 //                                "/admin/employee/**",
-//                                "/wx/pay/**",               //支付接口测试
+                                "/wx/pay/**",               //支付接口测试
 
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**"
