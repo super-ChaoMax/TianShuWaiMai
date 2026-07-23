@@ -103,6 +103,7 @@ public class SecurityConfig {
 //                                "/wx/category/**",    // 放行分类接口
 //                                "/admin/employee/**",
                                 "/wx/pay/**",               //支付接口测试
+                                "/ws/aw/pay/**",
 
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**"

@@ -21,6 +21,14 @@ public interface PayLogMapper {
     Orders getLastOrderInfoByUserId(@Param("userId") Long userId);
 
 
+    /**
+     * 根据 提供的 id 查询出订单
+     * @param id 订单id
+     * @return 最新订单id
+     */
+    Orders getById(@Param("id") Long id);
+
+
     // 新增支付退款日志
     int insertPayLog(@Param("log") PayLog payLog);
 }

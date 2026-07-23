@@ -31,6 +31,12 @@
         #{log.payChannel},#{log.logType},#{log.status},#{log.resultContent},#{log.createTime})
     </insert>
 
+<!--    getById-->
+    <select id="getById" resultType="entity.wx.Orders">
+        SELECT id,amount
+        FROM orders
+        WHERE id = #{id}
+    </select>
 
 
 </mapper>

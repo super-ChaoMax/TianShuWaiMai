@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>支付确认</title>
+    <!-- 【修改1】屏蔽浏览器默认图标请求，彻底消除 favicon.ico 403 报错 -->
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
     <style>
         * {margin: 0; padding: 0; box-sizing: border-box;}
         body {padding: 40px 20px; text-align: center; font-size: 18px;}
@@ -55,29 +57,40 @@
 </div>
 
 <script>
-    // 获取URL参数
+    let ws = null;
+    let wsOrderId = '';
+    let orderId = '';
+    let payAmount = '';
+    let heartTimer = null;
+    let payLock = false;
+
+    // 生成浏览器唯一标识
+    function getBrowserCid() {
+        let cid = localStorage.getItem("payWsCid");
+        if (!cid) {
+            cid = crypto.randomUUID();
+            localStorage.setItem("payWsCid", cid);
+        }
+        return cid;
+    }
+
+    // 获取URL地址栏参数
     function getUrlParam(name) {
         return new URLSearchParams(location.search).get(name) || '';
     }
 
-    // 金额格式化 保留2位小数
+    // 金额格式化 保留两位小数
     function formatMoney(num) {
         return parseFloat(Number(num) || 0).toFixed(2)
     }
 
-    // 请求超时封装
+    // 带超时拦截的请求封装
     function fetchWithTimeout(url, options = {}, timeout = 8000) {
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), timeout);
         return fetch(url, { ...options, signal: controller.signal })
             .finally(() => clearTimeout(timer));
     }
-
-    const userId = getUrlParam('userId');
-    let orderId = '';
-    let payAmount = '';
-    let heartTimer = null;
-    let payLock = false; // 支付唯一锁
 
     // 开启心跳上报
     function startHeartBeat() {
@@ -92,7 +105,7 @@
         }, 2000)
     }
 
-    // 关闭心跳
+    // 关闭心跳定时器
     function stopHeartBeat() {
         if(heartTimer){
             clearInterval(heartTimer)
@@ -100,28 +113,84 @@
         }
     }
 
+function initWebSocket(){
+    // 直接写你电脑局域网IP + 8080 明文ws，彻底避开wss报错
+    let wsUrl = `ws://192.168.198.1:8080/ws/aw/pay?session=${getBrowserCid()}`;
+
+    ws = new WebSocket(wsUrl);
+
+    ws.onopen = function () {
+        console.log("支付WebSocket连接成功");
+    };
+
+    ws.onmessage = function (res) {
+        const data = JSON.parse(res.data);
+        console.log("收到后端消息", data);
+        if(data.type === 1){
+            wsOrderId = data.orderNo;
+        }
+    };
+
+    ws.onclose = function () {
+        console.log("支付WS连接已关闭");
+    };
+
+    ws.onerror = function () {
+        console.log("支付WS连接出错");
+    };
+}
+
+
+
+
+
+    const userId = getUrlParam('userId');
+
+    // 页面加载完成执行逻辑
     window.onload = async function(){
-        // 无用户ID直接提示
+        // 【修改4】执行顺序优先初始化WS，再加载订单，流程不乱序
+        initWebSocket();
+
         if(!userId) {
             document.getElementById('payBox').innerHTML = '<p class="empty-tip">缺少用户参数，无法发起支付</p>';
             return;
         }
         try{
-            let res1 = await fetchWithTimeout(`/wx/pay/query?userId=${userId}`)
-            if(!res1.ok) throw new Error("订单查询失败")
-            let json1 = await res1.json();
-            if(json1.code !== 200 || !json1.data){
-                document.getElementById('payBox').innerHTML = '<p class="empty-tip">暂无待支付订单</p>';
-                return
+            //加一个定时器（异步没用的）
+            // 同步休眠等待2秒，会阻塞后续代码执行
+            console.log("开始等待2秒...");
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            console.log("等待2秒等待订单加载完成");
+            console.log("订单加载完成"+wsOrderId);
+
+            let json;
+            if(wsOrderId!==''){
+                console.log("历史订单");
+                let res2 = await fetchWithTimeout(`/wx/pay/queryOrder?id=${wsOrderId}`)
+                if(!res2.ok) throw new Error("订单查询失败")
+                json = await res2.json();
+                if(json.code !== 200 || !json.data){
+                    document.getElementById('payBox').innerHTML = '<p class="empty-tip">暂无待支付订单</p>';
+                    return
+                }
+            }else{
+                console.log("直接订单支付");
+                let res1 = await fetchWithTimeout(`/wx/pay/query?userId=${userId}`)
+                if(!res1.ok) throw new Error("订单查询失败")
+                json = await res1.json();
+                if(json.code !== 200 || !json.data){
+                    document.getElementById('payBox').innerHTML = '<p class="empty-tip">暂无待支付订单</p>';
+                    return
+                }
             }
-            let order = json1.data;
+
+            let order = json.data;
             orderId = order.id;
             payAmount = order.amount;
 
             document.getElementById('orderText').innerText = `订单号：${orderId}`;
             document.getElementById('amountText').innerText = `应付金额：¥${formatMoney(payAmount)}`;
 
-            // 通知后端修改超时配置
             await fetchWithTimeout(`/wx/pay/notify?orderId=${orderId}`);
             startHeartBeat();
         }catch(e){
@@ -130,9 +199,14 @@
         }
     }
 
-    // 确认支付点击事件
+    // 支付按钮点击事件
     document.getElementById('payBtn').onclick = async function(){
-        if(payLock || !orderId) return;
+        console.log("点击支付按钮");
+        // 【修改5】增加订单为空弹窗提示，静默无反应问题解决
+        if(payLock || !orderId) {
+            alert("暂无有效订单，无法支付");
+            return;
+        }
         payLock = true;
         this.disabled = true;
         this.innerText = "处理中...";
@@ -155,8 +229,8 @@
             if(!res.ok) throw new Error("请求异常")
             let data = await res.json();
 
-            // 支付成功判定
             if(data.payStatus === "SUCCESS" || data.payStatus === "CREATE"){
+                if(ws) ws.close();
                 stopHeartBeat();
                 const box = document.getElementById('payBox');
                 box.innerHTML = `
@@ -177,17 +251,16 @@
             }
         }
 
-        // 失败重置状态
+        // 支付失败重置按钮状态
         payLock = false;
         this.disabled = false;
         this.innerText = "点击确认支付";
     }
 
-    // 页面关闭/刷新 优雅关闭订单（替换同步阻塞请求）
+    // 页面关闭/刷新 优雅关闭订单
     window.addEventListener('beforeunload', function(){
         stopHeartBeat();
         if(orderId){
-            // 浏览器稳定后台上报，不阻塞页面关闭
             navigator.sendBeacon(`/wx/pay/close?orderId=${orderId}`);
         }
     })

@@ -1,5 +1,7 @@
 package com.chaao.appserver.service.Impl.wx;
 
+import com.alibaba.fastjson2.JSON;
+import com.chaao.appserver.websocket.pay.ChatWebSocket;
 import jakarta.websocket.OnClose;
 import jakarta.websocket.OnMessage;
 import jakarta.websocket.OnOpen;
@@ -7,6 +9,7 @@ import jakarta.websocket.Session;
 import jakarta.websocket.server.PathParam;
 import jakarta.websocket.server.ServerEndpoint;
 import org.springframework.stereotype.Component;
+import vo.PaySend;
 
 import java.io.IOException;
 import java.util.Map;
@@ -77,6 +80,9 @@ public class OrderWebSocketServer {
         System.out.println("订单" + orderId + "已断开，当前活跃连接数：" + activeConnectionCount.get());
     }
 
+
+
+
     // 自动接收消息，框架异步调用，不用自己开线程
     //WebSocket 框架（SpringBoot 自带）底层已经封装好异步监听线程
     //客户端发消息过来 → 框架自动回调 onMessage()
@@ -84,6 +90,19 @@ public class OrderWebSocketServer {
     @OnMessage
     public void onMessage(String msg, Session session) {
 
+        System.out.println("收到小程序消息：" + msg);
+        //对发来的JSON消息进行转
+        PaySend orderMsg = JSON.parseObject(msg, PaySend.class);
+        switch (orderMsg.getType()) {
+            case 1:
+                // 历史订单进来的
+                // 调用连接到的二维码支付页面websocket给他发消息
+                ChatWebSocket.sendToLastSocket(orderMsg);
+                break;
+
+            default:
+                break;
+        }
 
     }
 }

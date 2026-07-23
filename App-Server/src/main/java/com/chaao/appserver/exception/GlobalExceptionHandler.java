@@ -62,4 +62,6 @@ public class GlobalExceptionHandler {
         return Result.error(500, "INTERNAL_ERROR", "服务暂不可用");
 //                             .body(new ErrorResponse("INTERNAL_ERROR", "服务暂不可用"));
     }
+
+
 }

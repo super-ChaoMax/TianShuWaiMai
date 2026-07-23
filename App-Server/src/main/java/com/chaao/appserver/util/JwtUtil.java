@@ -1,5 +1,6 @@
 package com.chaao.appserver.util;
 
+import com.chaao.appserver.exception.BusinessException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -108,7 +109,9 @@ public class JwtUtil {
                     .parseClaimsJws(token)
                     .getBody();
         } catch (ExpiredJwtException e) {
-            throw new RuntimeException("Token 已过期");
+//            throw new RuntimeException("Token 已过期");
+            // 抛自定义异常，不抛原生运行时异常
+            throw new BusinessException(401,"Token已过期，请重新登录",null);
         } catch (JwtException e) {
             throw new RuntimeException("无效的 Token");
         }

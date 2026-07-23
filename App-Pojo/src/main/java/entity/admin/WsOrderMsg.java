@@ -35,4 +35,6 @@ public class WsOrderMsg {
      * 自定义消息内容（预留扩展字段）
      */
     private String msg;
+
+
 }

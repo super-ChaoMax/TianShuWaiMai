@@ -7,6 +7,7 @@ import com.chaao.appserver.service.Impl.wx.OrderPayService;
 import com.chaao.appserver.service.Impl.wx.OrderServiceImpl;
 import com.chaao.appserver.service.Impl.wx.OrderWebSocketServer;
 import com.chaao.appserver.service.Impl.wx.ShoppingCartServiceImpl;
+import com.chaao.appserver.task.WebSocketPushTask;
 import com.chaao.appserver.websocket.admin.WebOrderPushWebSocket;
 import dto.wx.PayOrderDTO;
 import dto.wx.RefundDTO;
@@ -50,7 +51,20 @@ public class PayController {
         return Result.success(order);
     }
 
+    /*
+     *  这个是给从历史订单进入的
+     */
+    @GetMapping("/queryOrder")
+    public Result queryOrder(@RequestParam String  id){
+        log.info("用户进入历史订单详情"+ id);
+        // 手动转Long
+        // 截取去掉前缀 ORD_
+        String realIdStr = id.replace("ORD_","");
+        Long orderId = Long.parseLong(realIdStr);
+        Orders order = payLogMapper.getById(orderId);
 
+        return Result.success(order);
+    }
 
     /**
      *    通知小程序用户已经扫码了
@@ -139,4 +153,16 @@ public class PayController {
 //    public PayRespVO orderRefund(@RequestBody RefundDTO refundDTO){
 //        return orderPayService.orderRefund(orderRefundDTO);
 //    }
+
+    //订单接单催单
+    @PostMapping("/remind")
+    public Result orderRemind(@RequestBody String orderId){
+        log.info("用户点击了订单接单催单");
+        WebOrderPushWebSocket.pushUrgeOrderNotice(1,orderId);
+        // 3. 获取用户信息
+        // 4. 获取用户手机号
+        // 5. 发送短信
+        return Result.success("发送成功");
+    }
+
 }

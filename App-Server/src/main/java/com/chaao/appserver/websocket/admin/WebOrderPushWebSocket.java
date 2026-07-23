@@ -156,4 +156,21 @@ public class WebOrderPushWebSocket {
         // 全员推送
         WebSocketSessionManager.sendMsgToAll(jsonStr);
     }
+
+    //生成订单催接单提醒
+    public static void pushUrgeOrderNotice(Integer orderCount, String orderNo) {
+        // 组装统一推送实体
+        WsOrderMsg wsMsg = new WsOrderMsg();
+        //催单
+        wsMsg.setType("URGE_ORDER");
+        wsMsg.setOrderCount(orderCount);
+        wsMsg.setOrderNo(orderNo);
+        wsMsg.setMsg("有用户催单啦");
+        // 对象转JSON推送前端
+        String jsonStr = JSON.toJSONString(wsMsg);
+        // 全员推送
+        WebSocketSessionManager.sendMsgToAll(jsonStr);
+    }
+
+
 }
